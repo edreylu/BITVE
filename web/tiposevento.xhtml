@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition template="menu.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:define name="contenido">
+        <h:head>
+            <title>TIPOS DE EVENTO</title>
+             
+        </h:head>
+        <f:metadata>
+         <f:viewAction action="#{kTIpoEventoControl.init()}" />   
+        </f:metadata>       
+        <h:body>
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+        <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion('tiposevento.xhtml')}"/>  
+            <center>
+                <h:outputText value="TIPOS DE EVENTO" style="text-align: center; font-size: 1.7vw; font-weight: bolder" />
+                
+                <h:form id="formMostrar">
+                     
+                    <p:dataTable id="tablate" var="te" value="#{kTIpoEventoControl.ktiposevento}"
+                                 style="width:100%;" rows="10" rowsPerPageTemplate="5,8,10" 
+                                 emptyMessage ="No hay Tipos disponibles" 
+                                 paginator="true" paginatorPosition="bottom"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 filteredValue="#{kTIpoEventoControl.filteredTiposEvento}" widgetVar="tipoEventoTabla">
+                   
+                        <f:facet name="header">
+                            <p:commandLink id="instip" title="" update=":formInsertar" actionListener="#{kTIpoEventoControl.CargaVentanaInserta('')}" style="float: left;" type="button" rendered="#{accesoC.rolbotones.insertar eq 'S'}" >
+                            <h:graphicImage value="resources/img/generales/018 agregar.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="instip" value="Insertar Tipo Evento" showEffect="clip" hideEffect="clip" position="top"/>
+                                <p:outputPanel>
+                                    <h:outputText value="Buscar: " />
+                                    <p:inputText id="globalFilter" onkeyup="PF('tipoEventoTabla').filter()" style="width:150px" placeholder="Escribe para buscar"/>
+                                </p:outputPanel>
+                            </f:facet>
+         
+                        <p:column headerText="#" width="10%" filterBy="#{te.noTipoEvento}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{te.noTipoEvento}" />
+                        </p:column>
+
+                        <p:column headerText="DESCRIPCION" width="35%" filterBy="#{te.tipoEvento}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{te.tipoEvento}" />
+                        </p:column> 
+
+                        <p:column headerText="OBSERVACIONES" width="35%" filterBy="#{te.observaciones}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{te.observaciones}" />
+                        </p:column> 
+                        
+                        <p:column headerText="ACTUALIZAR" width="10%">
+                            
+                            <center>
+                            <p:commandLink id="acttip" title="" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" oncomplete="PF('dlgmodificar').show()" update=":formModificar">
+                               <f:setPropertyActionListener target="#{kTIpoEventoControl.ktipoevento}" value="#{te}" />
+                               <h:graphicImage value="resources/img/generales/020 actualizar.png" style="width: 24%; height: 24%;" />
+                           </p:commandLink>
+                            <p:tooltip for="acttip" value="Actualizar Tipo Evento" showEffect="clip" hideEffect="clip" position="top"/>
+                                </center>
+                        </p:column>
+                        <p:column headerText="ELIMINAR" width="10%">
+                            
+                            <center>
+                           <p:commandLink id="elitip" title="" rendered="#{accesoC.rolbotones.eliminar eq 'S'}" oncomplete="PF('dlgeliminar').show()" update=":formEliminar" >
+                           <f:setPropertyActionListener target="#{kTIpoEventoControl.ktipoevento}" value="#{te}" />
+                           <h:graphicImage value="resources/img/generales/019 quitar.png" style="width: 24%; height: 24%;" />
+                            </p:commandLink>
+                          <p:tooltip for="elitip" value="Eliminar Tipo Evento" showEffect="clip" hideEffect="clip" position="top"/>
+                            </center>
+                        </p:column>
+                    </p:dataTable>
+
+
+                </h:form>
+
+            </center>
+            
+           <p:dialog id="dlg1" header="Insertar Tipo Evento" showEffect="explode" hideEffect="explode" widgetVar="dlginsertar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+               <h:form id="formInsertar" class="dialogC">
+                    <p:growl id="mg" showSummary="true" showDetail="true"/>
+                    <p:panelGrid columns="3">
+
+                            <p:outputLabel value="TIPO EVENTO" for="descripcion" />
+                            <p:inputText id="descripcion" style="width: 200px;" value="#{kTIpoEventoControl.ktipoevento.tipoEvento}" requiredMessage="Se requiere Tipo Evento" required="true" />
+                            <p:message for="descripcion" display="icon" />
+                            <p:outputLabel value="OBSERVACIONES" for="observaciones" />
+                            <p:inputTextarea id="observaciones" style="width: 200px;" value="#{kTIpoEventoControl.ktipoevento.observaciones}" />
+                            <p:message for="observaciones" display="icon" />
+                    </p:panelGrid>
+                    <p:commandButton value="Guardar" update="mg :formInsertar :formMostrar"
+                                     actionListener="#{kTIpoEventoControl.insertar()}" oncomplete="actualizaListTipoEvento();"/>
+                </h:form>
+            </p:dialog>
+            
+            <p:dialog id="dlg2" header="Modificar Tipo Evento" showEffect="explode" hideEffect="explode" widgetVar="dlgmodificar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+
+                <h:form id="formModificar" class="dialogC">
+
+                         <p:growl id="mg" showSummary="true" showDetail="true"/>  
+                        <p:panelGrid columns="3">
+
+                            <p:outputLabel value="TIPO EVENTO" for="descripcion" />
+                            <p:inputText id="descripcion" style="width: 200px;" value="#{kTIpoEventoControl.ktipoevento.tipoEvento}" requiredMessage="Se requiere Tipo Evento" required="true" />
+                            <p:message for="descripcion" display="icon" />
+                            <p:outputLabel value="OBSERVACIONES" for="observaciones" />
+                            <p:inputTextarea id="observaciones" style="width: 200px;" value="#{kTIpoEventoControl.ktipoevento.observaciones}" />
+                            <p:message for="observaciones" display="icon" />
+                        </p:panelGrid>
+                        <p:commandButton value="Modificar" update="mg :formMostrar"
+                                         actionListener="#{kTIpoEventoControl.modificar()}"
+                                         oncomplete="actualizaListTipoEvento();"
+                                         />
+
+                        <p:commandButton value="Cancelar" actionListener="#{kTIpoEventoControl.cancelarActualizar()}"/>
+
+
+                </h:form>
+
+
+            </p:dialog>
+
+
+            <p:dialog id="dlg3" header="Eliminar Tipo Evento" showEffect="explode" hideEffect="explode" 
+                      widgetVar="dlgeliminar" resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+                <h:form id="formEliminar" class="dialogC">
+
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+
+
+                        <h:outputText value="¿Desea eliminar? #{kTIpoEventoControl.ktipoevento.tipoEvento} " />    
+                        <p:commandButton value="Si" update="mg :formMostrar" actionListener="#{kTIpoEventoControl.eliminar()}" 
+                                         oncomplete="actualizaListTipoEvento();" > </p:commandButton>
+
+                        <p:commandButton value="No" actionListener="#{kTIpoEventoControl.cancelarEliminar()}" />
+                
+                </h:form>
+            </p:dialog>
+
+            
+
+
+
+         <h:form>
+          <p:remoteCommand name="actualizaListTipoEvento" update=":formMostrar" actionListener="#{kTIpoEventoControl.init()}" /> 
+         </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+        </h:body>
+    </ui:define>
+</ui:composition>
+

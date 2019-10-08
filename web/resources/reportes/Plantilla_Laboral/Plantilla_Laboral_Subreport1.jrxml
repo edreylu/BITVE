@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Plantilla_Nominal_Subreport1" language="groovy" pageWidth="742" pageHeight="562" orientation="Landscape" columnWidth="742" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="NOCENTRO" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT PP.NO_PERSONAL NUMERO,
+		   PP.RFC_ALFA||PP.RFC_NUM||PP.RFC_HOMO RFC,
+		   PP.CURP_ALFA||PP.CURP_NUM||GENERO||CURP_ESTADO||CURP_CONS||CURP_HOMO||CURP_DIGITO CURP,
+		   TRIM(PP.APELLIDO_PATERNO)||' '||TRIM(PP.APELLIDO_MATERNO)||' '||TRIM(PP.NOMBRE) NOMBRE,
+		   ' 'CATEGORIA,
+		   ' ' PLAZA,
+       FP.DESCRIPCION FUNCION,
+       ''||HC.GRADO_SEMESTRE GRADO_SEMESTRE,
+       HC.GRUPO,
+       KM.DESCRIPCION MATERIA,
+       TO_CHAR(HC.HORA_INICIAL,'HH24:MI') ||' '||TO_CHAR(HC.HORA_FINAL,'HH24:MI') HORARIO,
+       DECODE(SUBSTR(DIAS,1,1),'1','L ','')||DECODE(SUBSTR(DIAS,2,1),'1','M ','')||DECODE(SUBSTR(DIAS,3,1),'1','Mi ','')||
+       DECODE(SUBSTR(DIAS,4,1),'1','J ','')||DECODE(SUBSTR(DIAS,5,1),'1','V ','')||DECODE(SUBSTR(DIAS,6,1),'1','S ','')||
+       DECODE(SUBSTR(DIAS,7,1),'1','D ','') DIAS
+  FROM COMBINACIONES_CENTROS       CC,
+       HORARIOS_CENTRO_TRABAJO     HC,
+       KCICLOESCOLAR         KC,
+       KMATERIA                    KM,
+       FUNCIONES_PERSONALES        FP,
+       PERSONAL_PLANTILLA          PP
+ WHERE CC.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_PERSONAL    < 0
+   AND CC.NO_COMBINACION = HC.NO_COMBINACION
+   AND HC.ESTADO_HORARIO = 'A'
+   AND HC.EJERCICIO      = TO_CHAR(SYSDATE,'YYYY')
+   AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND KC.CVESITUACION   = 11
+   AND HC.CLAVE_MATERIA  = KM.CVEMATERIA(+)
+   AND HC.NO_FUNCION     = FP.NO_FUNCION
+   AND HC.NO_SUBFUNCION  = FP.NO_SUBFUNCION
+   AND HC.NO_SUBSUBFUNCION = FP.NO_SUBSUBFUNCION
+   AND PP.NO_PERSONAL    = CC.NO_PERSONAL
+   AND HC.ESTADO_HORARIO='A'
+   AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+   AND CC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND CC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+UNION
+SELECT PP.NO_PERSONAL ,
+		   PP.RFC_ALFA||PP.RFC_NUM||PP.RFC_HOMO ,
+		   PP.CURP_ALFA||PP.RFC_NUM||PP.SEXO||PP.ESTADO_DE_NACIMIENTO||CURP_CONS||CURP_HOMO||CURP_DIGITO ,
+		   TRIM(PP.APELLIDO_PATERNO)||' '||TRIM(PP.APELLIDO_MATERNO)||' '||TRIM(PP.NOMBRE) ,
+		   PU.NOMBRE ,
+		   CLAVE_PRESUP(PO.NO_POSICION) ,
+       FP.DESCRIPCION ,
+       ''||HC.GRADO_SEMESTRE,
+       HC.GRUPO,
+       KM.DESCRIPCION ,
+       TO_CHAR(HC.HORA_INICIAL,'HH24:MI') ||' '||TO_CHAR(HC.HORA_FINAL,'HH24:MI') ,
+       DECODE(SUBSTR(DIAS,1,1),'1','L ','')||DECODE(SUBSTR(DIAS,2,1),'1','M ','')||DECODE(SUBSTR(DIAS,3,1),'1','Mi ','')||
+       DECODE(SUBSTR(DIAS,4,1),'1','J ','')||DECODE(SUBSTR(DIAS,5,1),'1','V ','')||DECODE(SUBSTR(DIAS,6,1),'1','S ','')||
+       DECODE(SUBSTR(DIAS,7,1),'1','D ','')
+  FROM COMBINACIONES_CENTROS       CC,
+       HORARIOS_CENTRO_TRABAJO     HC,
+       KCICLOESCOLAR         KC,
+       KMATERIA                    KM,
+       FUNCIONES_PERSONALES        FP,
+		   POSICIONES_ORGANIZACIONALES PO,
+       PUESTOS                     PU,
+       PERSONAL                    PP
+ WHERE CC.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_POSICION IS NOT NULL
+   AND CC.NO_COMBINACION = HC.NO_COMBINACION
+   AND HC.ESTADO_HORARIO = 'A'
+   AND HC.EJERCICIO      = TO_CHAR(SYSDATE,'YYYY')
+   AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND KC.CVESITUACION   = 11
+   AND HC.CLAVE_MATERIA  = KM.CVEMATERIA(+)
+   AND HC.NO_FUNCION     = FP.NO_FUNCION
+   AND HC.NO_SUBFUNCION  = FP.NO_SUBFUNCION
+   AND HC.NO_SUBSUBFUNCION = FP.NO_SUBSUBFUNCION
+   AND CC.NO_POSICION    = PO.NO_POSICION
+   AND PO.FECHA_INGRESO  <= SYSDATE
+   AND (PO.ESTATUS_PAGO  != 'I'
+    OR  PO.ESTATUS_PAGO  = 'I' AND NVL(PO.FECHA_BAJA,SYSDATE+1) >= SYSDATE)
+   AND PO.NO_PUESTO      = PU.NO_PUESTO
+   AND PO.NO_PERSONAL    = PP.NO_PERSONAL
+   AND HC.ESTADO_HORARIO='A'
+   AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+   AND CC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND CC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+UNION
+SELECT PP.NO_PERSONAL,
+       PP.RFC,
+       PP.CURP,
+       TRIM(PP.NOMBRE),
+		   DECODE (PU.NOMBRE,'',' ',PU.NOMBRE),
+		   CLAVE_PRESUP_E(PO.NO_POSICION),
+       FP.DESCRIPCION,
+       ''||HC.GRADO_SEMESTRE,
+       HC.GRUPO,
+       KM.DESCRIPCION,
+       TO_CHAR(HC.HORA_INICIAL,'HH24:MI') ||' '||TO_CHAR(HC.HORA_FINAL,'HH24:MI'),
+       DECODE(SUBSTR(DIAS,1,1),'1','L ','')||DECODE(SUBSTR(DIAS,2,1),'1','M ','')||DECODE(SUBSTR(DIAS,3,1),'1','Mi ','')||
+       DECODE(SUBSTR(DIAS,4,1),'1','J ','')||DECODE(SUBSTR(DIAS,5,1),'1','V ','')||DECODE(SUBSTR(DIAS,6,1),'1','S ','')||
+       DECODE(SUBSTR(DIAS,7,1),'1','D ','')
+  FROM COMBINACIONES_CENTROS_E       CC,
+       HORARIOS_CENTRO_TRABAJO_E     HC,
+       KCICLOESCOLAR           KC,
+       KMATERIA                      KM,
+       FUNCIONES_PERSONALES          FP,
+		   POSICIONES_ORGANIZACIONALES_E PO,
+       PUESTOS                       PU,
+       PERSONAL_E                    PP
+ WHERE CC.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_POSICION IS NOT NULL
+   AND CC.NO_COMBINACION = HC.NO_COMBINACION
+   AND HC.ESTADO_HORARIO = 'A'
+   AND HC.EJERCICIO      = TO_CHAR(SYSDATE,'YYYY')
+   AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND KC.CVESITUACION   = 11
+   AND HC.CLAVE_MATERIA  = KM.CVEMATERIA(+)
+   AND HC.NO_FUNCION     = FP.NO_FUNCION
+   AND HC.NO_SUBFUNCION  = FP.NO_SUBFUNCION
+   AND HC.NO_SUBSUBFUNCION = FP.NO_SUBSUBFUNCION
+   AND CC.NO_POSICION    = PO.NO_POSICION
+   AND PO.ESTATUS_PAGO   = 'A'
+   AND PO.NO_PUESTO      = PU.NO_PUESTO(+)
+   AND PO.NO_PERSONAL    = PP.NO_PERSONAL
+   AND HC.ESTADO_HORARIO='A'
+   AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+   AND CC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND CC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+UNION
+SELECT PP.NO_PERSONAL,
+		   PP.RFC_ALFA||PP.RFC_NUM||PP.RFC_HOMO RFC,
+		   PP.CURP_ALFA||PP.CURP_NUM||GENERO||CURP_ESTADO||CURP_CONS||CURP_HOMO||CURP_DIGITO,
+		   TRIM(PP.APELLIDO_PATERNO)||' '||TRIM(PP.APELLIDO_MATERNO)||' '||TRIM(PP.NOMBRE),
+		   ' ',
+		   ' ',
+       '' ,
+       '' ,
+       '' ,
+       '' ,
+       '' ,
+       ''
+  FROM COMBINACIONES_CENTROS       CC,
+       PERSONAL_PLANTILLA          PP
+ WHERE CC.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_PERSONAL    < 0
+   AND CC.ESTADO          = 1
+   AND cc.no_personal = pp.no_personal
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND NOT EXISTS(SELECT NULL
+                    FROM HORARIOS_CENTRO_TRABAJO HC,
+                         KCICLOESCOLAR     KC
+                   WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                     AND HC.ESTADO_HORARIO    = 'A'
+                     AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                     AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                     AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                     AND KC.CVESITUACION      = 11
+                     AND HC.ESTADO_HORARIO='A'
+                     AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+    )
+UNION
+SELECT PP.NO_PERSONAL ,
+		   PP.RFC_ALFA||PP.RFC_NUM||PP.RFC_HOMO ,
+		   PP.CURP_ALFA||PP.RFC_NUM||PP.SEXO||PP.ESTADO_DE_NACIMIENTO||CURP_CONS||CURP_HOMO||CURP_DIGITO ,
+		   TRIM(PP.APELLIDO_PATERNO)||' '||TRIM(PP.APELLIDO_MATERNO)||' '||TRIM(PP.NOMBRE) ,
+		   PU.NOMBRE ,
+		   CLAVE_PRESUP(PO.NO_POSICION) ,
+       '' ,
+       '',
+       '',
+       '' ,
+       '' ,
+       ''
+  FROM COMBINACIONES_CENTROS       CC,
+		   POSICIONES_ORGANIZACIONALES PO,
+       PUESTOS                     PU,
+       PERSONAL                    PP
+ WHERE CC.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_POSICION IS NOT NULL
+   AND CC.ESTADO          = 1
+   AND CC.NO_POSICION    = PO.NO_POSICION
+   AND CC.NO_PERSONAL    = PO.NO_PERSONAL
+   AND PO.FECHA_INGRESO  <= SYSDATE
+   AND (PO.ESTATUS_PAGO  != 'I'
+    OR  PO.ESTATUS_PAGO  = 'I' AND NVL(PO.FECHA_BAJA,SYSDATE+1) >= SYSDATE)
+   AND PO.NO_PUESTO      = PU.NO_PUESTO
+   AND PO.NO_PERSONAL    = PP.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND NOT EXISTS(SELECT NULL
+                    FROM HORARIOS_CENTRO_TRABAJO HC,
+                         KCICLOESCOLAR     KC
+                   WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                     AND HC.ESTADO_HORARIO    = 'A'
+                     AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                     AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                     AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                     AND KC.CVESITUACION      = 11
+                     AND HC.ESTADO_HORARIO='A'
+                     AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+  )
+UNION
+SELECT PP.NO_PERSONAL ,
+       PP.RFC ,
+       PP.CURP ,
+       TRIM(PP.NOMBRE) ,
+		   DECODE (PU.NOMBRE,'',' ',PU.NOMBRE) ,
+		   CLAVE_PRESUP_E(PO.NO_POSICION) ,
+       '' ,
+       '',
+       '',
+       '' ,
+       '' ,
+       ''
+  FROM COMBINACIONES_CENTROS_E       CC,
+		   POSICIONES_ORGANIZACIONALES_E PO,
+       PUESTOS                       PU,
+       PERSONAL_E                    PP
+ WHERE CC.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.ESTADO         = 1
+   AND CC.NO_POSICION    = PO.NO_POSICION
+   AND CC.NO_PERSONAL    = PO.NO_PERSONAL
+   AND PO.ESTATUS_PAGO   = 'A'
+   AND PO.NO_PUESTO      = PU.NO_PUESTO(+)
+   AND PO.NO_PERSONAL    = PP.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND NOT EXISTS(SELECT NULL
+                    FROM HORARIOS_CENTRO_TRABAJO_E HC,
+                         KCICLOESCOLAR       KC
+                   WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                     AND HC.ESTADO_HORARIO    = 'A'
+                     AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                     AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                     AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                     AND KC.CVESITUACION      = 11
+                     AND HC.ESTADO_HORARIO='A'
+                     AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+  )
+
+UNION
+SELECT PP.NO_PERSONAL ,
+		   PP.RFC_ALFA||PP.RFC_NUM||PP.RFC_HOMO ,
+		   PP.CURP_ALFA||PP.RFC_NUM||PP.SEXO||PP.ESTADO_DE_NACIMIENTO||CURP_CONS||CURP_HOMO||CURP_DIGITO ,
+		   TRIM(PP.APELLIDO_PATERNO)||' '||TRIM(PP.APELLIDO_MATERNO)||' '||TRIM(PP.NOMBRE) ,
+		   ' ',
+		   ' ',
+       FP.DESCRIPCION ,
+       ''||HC.GRADO_SEMESTRE,
+       HC.GRUPO,
+       KM.DESCRIPCION ,
+       TO_CHAR(HC.HORA_INICIAL,'HH24:MI') ||' '||TO_CHAR(HC.HORA_FINAL,'HH24:MI') ,
+       DECODE(SUBSTR(DIAS,1,1),'1','L ','')||DECODE(SUBSTR(DIAS,2,1),'1','M ','')||DECODE(SUBSTR(DIAS,3,1),'1','Mi ','')||
+       DECODE(SUBSTR(DIAS,4,1),'1','J ','')||DECODE(SUBSTR(DIAS,5,1),'1','V ','')||DECODE(SUBSTR(DIAS,6,1),'1','S ','')||
+       DECODE(SUBSTR(DIAS,7,1),'1','D ','')
+  FROM CENTROS_DE_TRABAJO_DETALLE  CD,
+       COMBINACIONES_CENTROS       CC,
+       HORARIOS_CENTRO_TRABAJO     HC,
+       KCICLOESCOLAR        KC,
+       KMATERIA                    KM,
+       FUNCIONES_PERSONALES        FP,
+       PERSONAL                    PP
+ WHERE CD.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_CENTRO      = CD.NO_CENTRO
+   AND CC.NO_POSICION IS NULL
+   AND CC.NO_COMBINACION = HC.NO_COMBINACION
+   AND HC.ESTADO_HORARIO = 'A'
+   AND HC.EJERCICIO      = TO_CHAR(SYSDATE,'YYYY')
+   AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND KC.CVESITUACION   = 11
+   AND HC.CLAVE_MATERIA  = KM.CVEMATERIA(+)
+   AND HC.NO_FUNCION     = FP.NO_FUNCION
+   AND HC.NO_SUBFUNCION  = FP.NO_SUBFUNCION
+   AND HC.NO_SUBSUBFUNCION = FP.NO_SUBSUBFUNCION
+   AND CC.NO_PERSONAL    = PP.NO_PERSONAL
+   and hc.ESTADO_HORARIO='A'
+AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+AND CC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+AND CC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+UNION
+SELECT PP.NO_PERSONAL ,
+		   PP.RFC_ALFA||PP.RFC_NUM||PP.RFC_HOMO ,
+		   PP.CURP_ALFA||PP.RFC_NUM||PP.SEXO||PP.ESTADO_DE_NACIMIENTO||CURP_CONS||CURP_HOMO||CURP_DIGITO ,
+		   TRIM(PP.APELLIDO_PATERNO)||' '||TRIM(PP.APELLIDO_MATERNO)||' '||TRIM(PP.NOMBRE) ,
+		   ' ' ,
+		   ' ',
+       '',
+       '',
+       '',
+       '' ,
+       '' ,
+       ''
+  FROM CENTROS_DE_TRABAJO_DETALLE  CD,
+       COMBINACIONES_CENTROS       CC,
+       PERSONAL                    PP
+ WHERE CD.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_CENTRO      = CD.NO_CENTRO
+   AND CC.NO_POSICION IS NULL
+   AND CC.ESTADO          = 1
+   AND CC.NO_PERSONAL    = PP.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND NOT EXISTS(SELECT NULL
+                    FROM HORARIOS_CENTRO_TRABAJO HC,
+                         KCICLOESCOLAR    KC
+                   WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                     AND HC.ESTADO_HORARIO    = 'A'
+                     AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                     AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                     AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                     AND KC.CVESITUACION      = 11
+                     AND HC.ESTADO_HORARIO='A'
+                     AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+  )
+
+ UNION
+
+ SELECT PP.NO_PERSONAL ,
+		   PP.RFC,
+		   PP.CURP,
+		   TRIM(PP.NOMBRE),
+		   ' ',
+		   ' ',
+       FP.DESCRIPCION ,
+       ''||HC.GRADO_SEMESTRE,
+       HC.GRUPO,
+       KM.DESCRIPCION ,
+       TO_CHAR(HC.HORA_INICIAL,'HH24:MI') ||' '||TO_CHAR(HC.HORA_FINAL,'HH24:MI') ,
+       DECODE(SUBSTR(DIAS,1,1),'1','L ','')||DECODE(SUBSTR(DIAS,2,1),'1','M ','')||DECODE(SUBSTR(DIAS,3,1),'1','Mi ','')||
+       DECODE(SUBSTR(DIAS,4,1),'1','J ','')||DECODE(SUBSTR(DIAS,5,1),'1','V ','')||DECODE(SUBSTR(DIAS,6,1),'1','S ','')||
+       DECODE(SUBSTR(DIAS,7,1),'1','D ','')
+  FROM CENTROS_DE_TRABAJO_DETALLE  CD,
+       COMBINACIONES_CENTROS_E     CC,
+       HORARIOS_CENTRO_TRABAJO_E   HC,
+       KCICLOESCOLAR        KC,
+       KMATERIA                    KM,
+       FUNCIONES_PERSONALES        FP,
+       PERSONAL_E                  PP
+ WHERE CD.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_CENTRO      = CD.NO_CENTRO
+   AND CC.NO_POSICION IS NULL
+   AND CC.NO_COMBINACION = HC.NO_COMBINACION
+   AND HC.ESTADO_HORARIO = 'A'
+   AND HC.EJERCICIO      = TO_CHAR(SYSDATE,'YYYY')
+   AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+   AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+   AND KC.CVESITUACION   = 11
+   AND HC.CLAVE_MATERIA  = KM.CVEMATERIA(+)
+   AND HC.NO_FUNCION     = FP.NO_FUNCION
+   AND HC.NO_SUBFUNCION  = FP.NO_SUBFUNCION
+   AND HC.NO_SUBSUBFUNCION = FP.NO_SUBSUBFUNCION
+   AND CC.NO_PERSONAL    = PP.NO_PERSONAL
+   and hc.ESTADO_HORARIO='A'
+AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+AND CC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+AND CC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+UNION
+SELECT PP.NO_PERSONAL ,
+		   PP.RFC ,
+		   PP.CURP ,
+		   TRIM(PP.NOMBRE),
+		   ' ' ,
+		   ' ',
+       '',
+       '',
+       '',
+       '' ,
+       '' ,
+       ''
+  FROM CENTROS_DE_TRABAJO_DETALLE  CD,
+       COMBINACIONES_CENTROS_E     CC,
+       PERSONAL_E                  PP
+ WHERE CD.NO_CENTRO      = $P{NOCENTRO}
+   AND CC.NO_CENTRO      = CD.NO_CENTRO
+   AND CC.NO_POSICION IS NULL
+   AND CC.ESTADO          = 1
+   AND CC.NO_PERSONAL    = PP.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND NOT EXISTS(SELECT NULL
+                    FROM HORARIOS_CENTRO_TRABAJO_E HC,
+                         KCICLOESCOLAR    KC
+                   WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                     AND HC.ESTADO_HORARIO    = 'A'
+                     AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                     AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                     AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                     AND KC.CVESITUACION      = 11
+                     AND HC.ESTADO_HORARIO='A'
+                     AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+  )
+
+ORDER BY 2]]>
+	</queryString>
+	<field name="NUMERO" class="java.math.BigDecimal"/>
+	<field name="RFC" class="java.lang.String"/>
+	<field name="CURP" class="java.lang.String"/>
+	<field name="NOMBRE" class="java.lang.String"/>
+	<field name="CATEGORIA" class="java.lang.String"/>
+	<field name="PLAZA" class="java.lang.String"/>
+	<field name="FUNCION" class="java.lang.String"/>
+	<field name="GRADO_SEMESTRE" class="java.lang.String"/>
+	<field name="GRUPO" class="java.lang.String"/>
+	<field name="MATERIA" class="java.lang.String"/>
+	<field name="HORARIO" class="java.lang.String"/>
+	<field name="DIAS" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="15">
+			<staticText>
+				<reportElement mode="Opaque" x="689" y="0" width="53" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DIAS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="32" y="0" width="60" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RFC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="559" y="0" width="86" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MATERIA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="519" y="0" width="20" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GDO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="261" y="0" width="89" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CATEGORIA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="92" y="0" width="80" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CURP]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="438" y="0" width="81" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FUNCION]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="172" y="0" width="89" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NOMBRE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="32" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[EXP.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="645" y="0" width="44" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[HORARIO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="350" y="0" width="88" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PLAZA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="539" y="0" width="20" height="15" backcolor="#CCCCFF"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GPO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="29" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="32" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NUMERO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="350" y="0" width="88" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PLAZA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="689" y="0" width="53" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DIAS}.equals(null)?' ':$F{DIAS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="438" y="0" width="81" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FUNCION}.equals(null)?'':$F{FUNCION}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="645" y="0" width="44" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{HORARIO}.equals(null)?' ':$F{HORARIO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="559" y="0" width="86" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MATERIA}.equals(null)?' ':$F{MATERIA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="92" y="0" width="80" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CURP}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="172" y="0" width="89" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NOMBRE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement x="261" y="0" width="89" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CATEGORIA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="32" y="0" width="60" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RFC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="539" y="0" width="20" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{GRUPO}.equals(null)?'':$F{GRUPO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="519" y="0" width="20" height="29"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{GRADO_SEMESTRE}.equals(null)?'':$F{GRADO_SEMESTRE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="1">
+			<break>
+				<reportElement x="0" y="0" width="100" height="1"/>
+			</break>
+		</band>
+	</summary>
+</jasperReport>

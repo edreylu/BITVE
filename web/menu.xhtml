@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>BITVE</title>
+        <h:outputStylesheet library="css" name="menu.css" />
+    </h:head>
+    <h:body>
+        <ui:composition template="lay.xhtml">
+            <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+            <f:metadata>
+                <f:viewAction action="#{menuControl.llenaMenu()}" />
+                <f:viewAction action="#{rolesControl.llenarpermisos(accesoC.noUsuario)}" />
+           </f:metadata>
+            <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion(' ')}"/>   
+            <ui:define name="content">
+                <center>          
+                    <div class="bienvenidoDiv">
+                        <h:form>
+                            <p:commandLink id="cerrar_sesion" actionListener="#{direcciona.index()}" title="Cerrar Sesion" >
+                           
+                                <h:graphicImage alt="Cerrar Sesion" value="../resources/img/especificos/cs.png" style="width: 3%; height: 3%;"/>
+                            </p:commandLink>
+                            <br/>
+                            <br/>
+                            <p:outputLabel value="BIENVENIDO: #{accesoC.nombreCompleto} " class="textBannerUsuario" style="text-transform: uppercase;" /> 
+                            
+                           
+                <p:idleMonitor timeout="600000">
+                    <p:ajax event="idle" listener="#{accesoC.CerrarSesionListener()}"/>
+                </p:idleMonitor>
+                        </h:form>
+                    </div>
+                </center>
+                <p:layout style="width: 100%; height:99%;">
+                    <p:layoutUnit position="west" class="fondoMenu">
+                        <h:form>
+                            <center>
+                                <p:menu style="font-size: 1.22vw; border: transparent !important; background:transparent !important; width: 95% !important; " model="#{menuControl.model}" >
+                                </p:menu>
+                            </center>
+                        </h:form>
+                    </p:layoutUnit>
+                    <p:layoutUnit id="centrado" position="center">
+                        <div style="font-size: 0.83vw; height:99% !important; border-style: none;">
+                            <ui:insert name="contenido">
+                                
+                            </ui:insert> 
+                        </div>
+                    </p:layoutUnit>
+                </p:layout>
+            </ui:define>
+        </ui:composition>
+        <h:form>
+            <p:remoteCommand name="SessionCaducada" actionListener="#{accesoC.CerrarSesion()}"  process="@this"/>
+        </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+    </h:body>
+</html>
+
+

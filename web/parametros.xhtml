@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition template="menu.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:define name="contenido">
+        <h:head>
+            <title>PARAMETROS</title>
+             
+        </h:head>
+        <f:metadata>
+            <f:viewAction action="#{parametrosControl.init()}" />   
+        </f:metadata>       
+        <h:body>
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+        <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion('parametros.xhtml')}"/>  
+            <center>
+                <h:outputText value="PARAMETROS" style="text-align: center; font-size: 1.7vw; font-weight: bolder" />
+                
+                <h:form id="formMostrar">
+                    
+                    <p:growl id="mg" showSummary="true" showDetail="true"/>
+                     
+                     <br/>
+                      
+                     <p:panel id="basic" header="PARAMETROS" footer="Parametros del aplicativo" style="text-align: center !important;">
+                         <center>
+                             <p:graphicImage cache="false" style="width: 25%; height: 55%;" value="resources/img/SEP.png" />
+                             <h:panelGrid columns="2" cellpadding="10" style="width: 60%; height: 50%;">
+              <h:outputText value="Tiempo Maximo de Modificacion (horas):" />           
+              <p:inputText style="width:50px" value="#{parametrosControl.par.tiempoMaximoModif}" required="true" requiredMessage="Se requiere tiempo maximo de modificacion" />
+                     <h:outputText value="Mostrar Inactivos:" />
+                     <p:selectOneMenu value="#{parametrosControl.par.mostrarInactivos}" required="true" requiredMessage="Se requiere mostrar inactivos">
+                         <f:selectItem itemLabel="SI" itemValue="S" />
+                         <f:selectItem itemLabel="NO" itemValue="N" />
+                     </p:selectOneMenu>
+                     <f:facet name="footer">
+                        <p:commandLink actionListener="#{parametrosControl.modificar()}" title="Actualizar Parametros" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" update=":formMostrar">
+                                <h:graphicImage value="resources/img/generales/020 actualizar.png" style="width: 3%;" />
+                           </p:commandLink>
+                     </f:facet>
+       
+        </h:panelGrid>
+                             </center>
+    </p:panel>
+                     
+                        
+                     
+                                
+
+                </h:form>
+
+            </center>
+            
+<p:dialog id="dlg" header="Subir foto de reporte" showEffect="explode" hideEffect="explode" appendTo="@(body)" modal="true"
+                        widgetVar="dlgsubir" resizable="false" width="500" height="150" closeOnEscape="true">
+                  
+    <h:form id="formSubir" class="dialogC">
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+                        
+                        <p:fileUpload label="Elegir" uploadLabel="Subir" 
+                                      cancelLabel="Cancelar" mode="advanced" dragDropSupport="false" oncomplete="actualizaParametros();" 
+                                      update="mg, formMostrar" process="@all" sizeLimit="1000000"  allowTypes="/(\.|\/)(jpe?g|png)$/" ></p:fileUpload>
+                    </h:form>
+                </p:dialog>
+
+
+         <h:form>
+          <p:remoteCommand name="actualizaParametros" update=":formMostrar" actionListener="#{parametrosControl.init()}" /> 
+         </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+        </h:body>
+    </ui:define>
+</ui:composition>
+

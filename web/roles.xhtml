@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition template="menu.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <ui:define name="contenido">
+        <h:head>
+            <title>Roles</title>
+            <h:outputScript name="funciones.js" library="js" />
+        </h:head>
+        <f:metadata>
+         <f:viewAction action="#{rolesControl.init()}" />   
+        </f:metadata>       
+        <h:body>
+          <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+          <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion('roles.xhtml')}"/>  
+            <center>
+               <h:outputText value="ROLES" style="text-align: center; font-size: 1.7vw; font-weight: bolder" />
+
+                <h:form id="formMostrar">
+                    
+                    <p:dataTable id="tablaper" var="per" value="#{rolesControl.roles}"
+                                 style="width:100%;" rows="10" rowsPerPageTemplate="5,8,10" 
+                                 emptyMessage ="No hay roles disponibles"
+                                 paginator="true" paginatorPosition="bottom"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 filteredValue="#{rolesControl.filteredRoles}" widgetVar="rolesTabla" >
+                        <f:facet name="header">
+                            <p:commandLink id="insrol" title="" update=":formInsertar" actionListener="#{rolesControl.CargaVentanaInserta('')}" style="float: left;" type="button" rendered="#{accesoC.rolbotones.insertar eq 'S'}" >
+                            <h:graphicImage value="resources/img/generales/018 agregar.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="insrol" value="Insertar Rol" showEffect="clip" hideEffect="clip" position="top"/>
+                                <p:outputPanel>
+                                    <h:outputText value="Buscar: " />
+                                    <p:inputText id="globalFilter" onkeyup="PF('rolesTabla').filter()" style="width:150px" placeholder="Escribe para buscar"/>
+                                </p:outputPanel>
+                            </f:facet>
+                        <p:column headerText="#" width="8%" filterBy="#{per.noRol}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{per.noRol}" />
+                        </p:column>
+
+                        <p:column headerText="NOMBRE" width="36%" filterBy="#{per.descripcion}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{per.descripcion}" />
+                        
+                        </p:column>
+
+                        <p:column headerText="INSERTAR" width="8%">
+                            <center>
+                           <h:graphicImage rendered="#{per.insertar eq 'S'}" value="resources/img/imagenes/si.png" style="width: 24%; height: 24%;" />
+                            
+                            <h:graphicImage rendered="#{per.insertar eq 'N'}" value="resources/img/imagenes/no.png" style="width: 24%; height: 24%;" />
+                            </center>
+                        </p:column>
+
+                        <p:column headerText="ACTUALIZAR" width="8%">
+                            <center>
+                           <h:graphicImage rendered="#{per.actualizar eq 'S'}" value="resources/img/imagenes/si.png" style="width: 24%; height: 24%;" />
+                            
+                            <h:graphicImage rendered="#{per.actualizar eq 'N'}" value="resources/img/imagenes/no.png" style="width: 24%; height: 24%;" />
+                            </center>
+                        </p:column>
+
+                        <p:column headerText="ELIMINAR" width="8%">
+                            <center>
+                           <h:graphicImage rendered="#{per.eliminar eq 'S'}" value="resources/img/imagenes/si.png" style="width: 24%; height: 24%;" />
+                            
+                            <h:graphicImage rendered="#{per.eliminar eq 'N'}" value="resources/img/imagenes/no.png" style="width: 24%; height: 24%;" />
+                            </center>
+                        </p:column>
+
+                        <p:column headerText="CONSULTAR" width="8%">
+                            <center>
+                           <h:graphicImage rendered="#{per.consultar eq 'S'}" value="resources/img/imagenes/si.png" style="width: 24%; height: 24%;" />
+                            
+                            <h:graphicImage rendered="#{per.consultar eq 'N'}" value="resources/img/imagenes/no.png" style="width: 24%; height: 24%;" />
+                            </center>
+                        </p:column>
+
+                             
+                        <p:column headerText="ACTUALIZAR" width="8%">
+                            <center>
+                            <p:commandLink id="actrol" oncomplete="PF('dlgmodificar').show()" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" title="" update=":formModificar">
+                               <f:setPropertyActionListener target="#{rolesControl.rol}" value="#{per}" />
+                               <h:graphicImage value="resources/img/generales/020 actualizar.png" style="width: 30%; height: 30%;" />
+                           </p:commandLink>
+                            <p:tooltip for="actrol" value="Actualizar rol" showEffect="clip" hideEffect="clip" position="top"/>    
+                                </center>
+                        </p:column>
+                        <p:column headerText="ELIMINAR" width="8%">
+                            <center>
+                            <p:commandLink id="elirol" oncomplete="PF('dlgeliminar').show()" rendered="#{accesoC.rolbotones.eliminar eq 'S'}" title="" update=":formEliminar" >
+                           <f:setPropertyActionListener target="#{rolesControl.rol}" value="#{per}" />
+                           <h:graphicImage value="resources/img/generales/019 quitar.png" style="width: 30%; height: 30%;" />
+                            </p:commandLink>
+                           <p:tooltip for="elirol" value="Eliminar rol" showEffect="clip" hideEffect="clip" position="top"/> 
+                            </center>
+                        </p:column>
+                        <p:column headerText=" ASIGNAR FUNCIONES" width="8%">
+                          <center>
+                            <p:commandLink id="asirol" actionListener="#{rolesControl.asignapantallas(per)}" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" update=":formAsignar"  title="">
+                           <f:setPropertyActionListener target="#{rolesControl.rol}" value="#{per}" />
+                           <h:graphicImage value="resources/img/imagenes/asignar.png" style="width: 30%; height: 30%;" />
+                            </p:commandLink>
+                              <p:tooltip for="asirol" value="Asignar funciones a rol" showEffect="clip" hideEffect="clip" position="top"/> 
+                            </center>  
+                        </p:column>
+                        
+                        
+                    </p:dataTable>
+
+
+                </h:form>
+
+            </center>
+            
+<p:dialog id="dlg1" header="Insertar Rol" showEffect="explode" hideEffect="explode" widgetVar="dlginsertar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+    <h:form id="formInsertar" class="dialogC">
+                    <p:growl id="mg" showSummary="true" showDetail="true"/>
+                    <p:panelGrid columns="2" >
+
+
+                        <p:outputLabel value="Nombre Rol" for="nombre" />
+                        <p:inputText id="nombre" value="#{rolesControl.rol.descripcion}" requiredMessage="Se requiere Nombre Rol" required="true" style="text-transform: uppercase;" >
+                            <p:watermark for="nombre" value="NOMBRE" />  
+                        </p:inputText>
+
+                        <p:selectBooleanCheckbox itemLabel="INSERTAR"  value="#{rolesControl.rol.insertarSelI}" /> 
+                        <p:selectBooleanCheckbox itemLabel="ACTUALIZAR"   value="#{rolesControl.rol.actualizarSelI}"/> 
+                        
+                        <p:selectBooleanCheckbox itemLabel="ELIMINAR"   value="#{rolesControl.rol.eliminarSelI}"/> 
+                        <p:selectBooleanCheckbox itemLabel="CONSULTAR"  value="#{rolesControl.rol.consultarSelI}"/> 
+                       
+                        
+                    </p:panelGrid>
+                    <center> <p:commandButton value="Guardar" update="mg :formInsertar :formMostrar"
+                                     actionListener="#{rolesControl.insertar()}" oncomplete="actualizaListRoles();"/></center>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlg2" header="Modificar Rol" showEffect="explode" hideEffect="explode" widgetVar="dlgmodificar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+
+                <h:form id="formModificar" class="dialogC">
+
+                         <p:growl id="mg" showSummary="true" showDetail="true"/>  
+                        <p:panelGrid columns="2">
+
+                            <p:outputLabel value="Nombre Rol" />
+                            <p:inputText value="#{rolesControl.rol.descripcion}" requiredMessage="Se requiere Nombre Rol" required="true" />
+                            <p:selectBooleanCheckbox itemLabel="INSERTAR"  value="#{rolesControl.rol.insertarSel}" /> 
+                            <p:selectBooleanCheckbox itemLabel="ACTUALIZAR"   value="#{rolesControl.rol.actualizarSel}"/> 
+                            <p:selectBooleanCheckbox itemLabel="ELIMINAR"   value="#{rolesControl.rol.eliminarSel}"/> 
+                            <p:selectBooleanCheckbox itemLabel="CONSULTAR"  value="#{rolesControl.rol.consultarSel}"/> 
+
+                        </p:panelGrid>
+                         <center>
+                        <p:commandButton value="Modificar" update="mg :formMostrar"
+                                         actionListener="#{rolesControl.modificar()}"
+                                         oncomplete="actualizaListRoles();"
+                                         />
+
+                        <p:commandButton value="Cancelar" actionListener="#{rolesControl.cancelarActualizar()}"/>
+                           </center>
+                </h:form>
+
+
+            </p:dialog>
+
+
+            <p:dialog id="dlg3" header="Eliminar Rol" showEffect="explode" hideEffect="explode" 
+                      widgetVar="dlgeliminar" resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+                <h:form id="formEliminar" class="dialogC">
+
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+
+
+                        <h:outputText value="¿Desea eliminar #{rolesControl.rol.descripcion}?" />    
+                        <p:commandButton value="Si" update="mg :formMostrar" actionListener="#{rolesControl.eliminar()}" 
+                                         oncomplete="actualizaListRoles();" />
+
+                        <p:commandButton value="No" actionListener="#{rolesControl.cancelarEliminar()}" />
+                
+                </h:form>
+            </p:dialog>
+
+            
+
+            <p:dialog id="dlg4" header="Asignar Formas a Rol" showEffect="explode" hideEffect="explode" widgetVar="dlgasignar" 
+                      resizable="false" minWidth="200" width="60%" height="450" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+
+                <h:form id="formAsignar" class="dialogC">
+
+                         <p:growl id="mg" showSummary="true" showDetail="true"/> 
+                       
+                         <center>
+                            <p:outputLabel value="ROL:" />
+                            <p:inputText value="#{rolesControl.rol.descripcion}" readonly="true" />
+                              
+                                    <p:dataTable var="men" value="#{rolesControl.menus}"
+                                            paginator="true" paginatorPosition="top" 
+                                            paginatorTemplate=" {PreviousPageLink} {CurrentPageReport}  
+                                                                {NextPageLink}  {RowsPerPageDropdown}" 
+                                            rows="10" style=" width: 100%;"
+                                            currentPageReportTemplate="({endRecord} de {totalRecords} 
+                                                                                Roles)" >
+                                    <p:column headerText="NO FORMA MENU" width="20%">
+                                        <h:outputText value="#{men.noFormaMenu}"  />
+                                    </p:column>
+                                    <p:column headerText="FORMA MENU" width="40%">
+                                        <h:outputText value="#{men.titulo}" />
+                                    </p:column>
+                                  <p:column headerText="PERMISO" style="text-align: center" width="40%">
+                                     <p:selectBooleanButton value="#{men.menuSeleccionado}" onLabel="SI" offLabel="NO" style="width:60px" />
+                                </p:column>
+                              </p:dataTable>
+                            
+                            <p:commandButton value="Asignar" update="mg :formMostrar"
+                                             actionListener="#{rolesControl.asignar()}"/>
+
+                            <p:commandButton value="Cancelar" actionListener="#{rolesControl.cancelarAsignar()}" />
+                        </center>
+
+                </h:form>
+
+
+            </p:dialog>
+
+
+         <h:form>
+             <p:remoteCommand name="actualizaListRoles" update=":formMostrar" actionListener="#{rolesControl.init()}" />
+         </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+        </h:body>
+    </ui:define>
+</ui:composition>
+

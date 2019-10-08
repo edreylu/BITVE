@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition template="menu.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:define name="contenido">
+        <h:head>
+            <title>UNIDADES RESPONSABLES</title>
+             
+        </h:head>
+        <f:metadata>
+            <f:viewAction action="#{urControl.init()}" />   
+        </f:metadata>       
+        <h:body>
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+        <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion('ur.xhtml')}"/>  
+            <center>
+                <h:outputText value="UNIDADES RESPONSABLES" style="text-align: center; font-size: 1.7vw; font-weight: bolder" />
+                
+                <h:form id="formMostrar">
+                     
+                    <p:dataTable id="tablate" var="ur" value="#{urControl.urs}"
+                                 style="width:100%;" rows="10" rowsPerPageTemplate="5,8,10" 
+                                 emptyMessage ="No hay URs disponibles" 
+                                 paginator="true" paginatorPosition="bottom"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 filteredValue="#{urControl.filteredUr}" widgetVar="urTabla">
+                   
+                        <f:facet name="header">
+                            <p:commandLink id="insur" title="" update=":formInsertar" actionListener="#{urControl.CargaVentanaInserta('')}" style="float: left;" type="button" rendered="#{accesoC.rolbotones.insertar eq 'S'}" >
+                            <h:graphicImage value="resources/img/generales/018 agregar.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="insur" value="Insertar Ur" showEffect="clip" hideEffect="clip" position="top"/>
+                            <p:commandLink id="repur" title="" ajax="false" actionListener="#{urControl.reporte()}" style="float: left;">
+                               <h:graphicImage value="resources/img/generales/021 reporte.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="repur" value="Reporte Excel" showEffect="clip" hideEffect="clip" position="top"/>
+                                <p:outputPanel>
+                                    <h:outputText value="Buscar: " />
+                                    <p:inputText id="globalFilter" onkeyup="PF('urTabla').filter()" style="width:150px" placeholder="Escribe para buscar"/>
+                                </p:outputPanel>
+                            </f:facet>
+         
+                        <p:column headerText="CLAVE UR" width="8%" filterBy="#{ur.claveUr}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ur.claveUr}" />
+                        </p:column>
+
+                        <p:column headerText="DESCRIPCION" width="40%" filterBy="#{ur.ur}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ur.ur}" />
+                        </p:column>
+                       
+                        <p:column headerText="NOMBRE" width="20%" filterBy="#{ur.nombre} #{ur.ap1} #{ur.ap2}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ur.nombre} #{ur.ap1} #{ur.ap2}" />
+                        </p:column>
+                        
+                        <p:column headerText="CLAVE UR GRUPO" width="8%" filterBy="#{ur.claveUrGrupo}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ur.claveUrGrupo}" />
+                        </p:column>
+                        <p:column headerText="ESTATUS" width="8%" filterBy="#{ur.estatus}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <center>
+                            <h:outputText value="#{ur.estatus eq 'I'?'INACTIVO':'ACTIVO'}"/>
+                            </center>
+                        </p:column>
+                        <p:column headerText="ACTUALIZAR" width="8%">
+                            
+                            <center>
+                           <p:commandLink id="actur" title="" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" actionListener="#{urControl.CargaVentanaActualiza(ur.noUr)}" oncomplete="PF('dlgmodificar').show()" update=":formModificar">
+                                    <f:setPropertyActionListener target="#{urControl.ur}" value="#{ur}" />
+                               <h:graphicImage value="resources/img/generales/020 actualizar.png" style="width: 28%; height: 28%;" />
+                           </p:commandLink>
+                                <p:tooltip for="actur" value="Actualizar Ur" showEffect="clip" hideEffect="clip" position="top"/>
+                                </center>
+                        </p:column>
+                        <p:column headerText="ELIMINAR" width="8%">
+                            
+                            <center>
+                            <p:commandLink id="eliur" title="" rendered="#{accesoC.rolbotones.eliminar eq 'S'}" oncomplete="PF('dlgeliminar').show()" update=":formEliminar" >
+                           <f:setPropertyActionListener target="#{urControl.ur}" value="#{ur}" />
+                           <h:graphicImage value="resources/img/generales/019 quitar.png" style="width: 28%; height: 28%;" />
+                            </p:commandLink>
+                            <p:tooltip for="eliur" value="Eliminar Ur" showEffect="clip" hideEffect="clip" position="top"/>
+                            </center>
+                        </p:column>
+                    </p:dataTable>
+
+
+                </h:form>
+
+            </center>
+            
+           <p:dialog id="dlg1" header="Insertar Ur" showEffect="explode" hideEffect="explode" widgetVar="dlginsertar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+               <h:form id="formInsertar" class="dialogC">
+                    <p:growl id="mg" showSummary="true" showDetail="true"/>
+                    <p:panelGrid columns="3">
+                            <p:outputLabel value="CLAVE UR" for="cur" />
+                            <p:inputText id="cur" value="#{urControl.ur.claveUr}" requiredMessage="Se requiere Clave Ur" required="true" />
+                            <p:message for="cur" display="icon" />
+                            <p:outputLabel value="UR" for="descripcion" />
+                            <p:inputText id="descripcion" value="#{urControl.ur.ur}" size="70" requiredMessage="Se requiere Ur" required="true" />
+                            <p:message for="descripcion" display="icon" />
+                            <p:outputLabel value="APELLIDO PATERNO" for="ap1" />
+                            <p:inputText id="ap1" value="#{urControl.ur.ap1}" size="40" />
+                            <p:message for="ap1" display="icon" />
+                            <p:outputLabel value="APELLIDO MATERNO" for="ap2" />
+                            <p:inputText id="ap2" value="#{urControl.ur.ap2}" size="40" />
+                            <p:message for="ap2" display="icon" />
+                            <p:outputLabel value="NOMBRE" for="nombre" />
+                            <p:inputText id="nombre" value="#{urControl.ur.nombre}" size="40" />
+                            <p:message for="nombre" display="icon" /> 
+                            <p:outputLabel value="UR GRUPO " for="ursgrupo" />
+                            <p:selectOneMenu id="ursgrupo" filter="true" filterMatchMode="contains" value="#{urControl.ur.noUrGrupo}" style="width: 90%;" >
+                            <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                            <f:selectItems var="urp" value="#{urControl.ursgrupo}" itemLabel="#{urp.claveUr} #{urp.ur}" itemValue="#{urp.noUr}" />
+                            </p:selectOneMenu>
+                            <p:message for="ursgrupo" display="icon" />
+                    </p:panelGrid>
+                    <p:commandButton value="Guardar" update="mg :formInsertar :formMostrar"
+                                     actionListener="#{urControl.insertar()}" oncomplete="actualizaListUr();"/>
+                </h:form>
+            </p:dialog>
+            
+            <p:dialog id="dlg2" header="Modificar Ur" showEffect="explode" hideEffect="explode" widgetVar="dlgmodificar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+
+                <h:form id="formModificar" class="dialogC">
+
+                         <p:growl id="mg" showSummary="true" showDetail="true"/>  
+                        <p:panelGrid columns="3">
+                            <p:outputLabel value="CLAVE UR" for="cur" />
+                            <p:inputText id="cur" value="#{urControl.ur.claveUr}" requiredMessage="Se requiere Clave Ur" required="true" />
+                            <p:message for="cur" display="icon" />
+                            <p:outputLabel value="UR" for="descripcion" />
+                            <p:inputText id="descripcion" value="#{urControl.ur.ur}" size="70" requiredMessage="Se requiere Ur" required="true" />
+                            <p:message for="descripcion" display="icon" />
+                            <p:outputLabel value="APELLIDO PATERNO" for="ap1" />
+                            <p:inputText id="ap1" value="#{urControl.ur.ap1}" size="40" />
+                            <p:message for="ap1" display="icon" />
+                            <p:outputLabel value="APELLIDO MATERNO" for="ap2" />
+                            <p:inputText id="ap2" value="#{urControl.ur.ap2}" size="40" />
+                            <p:message for="ap2" display="icon" />
+                            <p:outputLabel value="NOMBRE" for="nombre" />
+                            <p:inputText id="nombre" value="#{urControl.ur.nombre}" size="40" />
+                            <p:message for="nombre" display="icon" />
+                            <p:outputLabel value="UR GRUPO " for="ursgrupo"/>
+                            <p:selectOneMenu id="ursgrupo" filter="true" filterMatchMode="contains" value="#{urControl.ur.noUrGrupo}" style="width: 90%;" >
+                            <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                            <f:selectItems var="urp" value="#{urControl.ursgrupo}" itemLabel="#{urp.claveUr} #{urp.ur}" itemValue="#{urp.noUr}" />
+                            </p:selectOneMenu>
+                            <p:message for="ursgrupo" display="icon" />
+                        </p:panelGrid>
+                        <p:commandButton value="Modificar" update="mg :formMostrar"
+                                         actionListener="#{urControl.modificar()}"
+                                         oncomplete="actualizaListUr();"
+                                         />
+
+                        <p:commandButton value="Cancelar" actionListener="#{urControl.cancelarActualizar()}"/>
+
+
+                </h:form>
+
+
+            </p:dialog>
+
+
+            <p:dialog id="dlg3" header="Eliminar Ur" showEffect="explode" hideEffect="explode" 
+                      widgetVar="dlgeliminar" resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+                <h:form id="formEliminar" class="dialogC">
+
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+
+
+                        <h:outputText value="¿Desea eliminar? #{urControl.ur.ur} " />    
+                        <p:commandButton value="Si" update="mg :formMostrar" actionListener="#{urControl.eliminar()}" 
+                                         oncomplete="actualizaListUr();" > </p:commandButton>
+
+                        <p:commandButton value="No" actionListener="#{urControl.cancelarEliminar()}" />
+                
+                </h:form>
+            </p:dialog>
+
+            
+
+
+
+         <h:form>
+          <p:remoteCommand name="actualizaListUr" update=":formMostrar" actionListener="#{urControl.init()}" /> 
+         </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+        </h:body>
+    </ui:define>
+</ui:composition>
+

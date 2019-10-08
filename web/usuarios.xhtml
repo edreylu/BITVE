@@ -1,0 +1,322 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+     <ui:composition template="menu.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:define name="contenido">
+    <h:head>
+        <title>Creacion Usuarios</title>
+        <h:outputStylesheet library="css" name="menu.css" />
+    </h:head>
+     <f:metadata>
+      <f:viewAction action="#{usuariosControl.init()}" />   
+     </f:metadata>       
+    <h:body>
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+        <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion('usuarios.xhtml')}"/>  
+        <center>
+        
+            <h:outputText value="USUARIOS" style="text-align: center; font-size: 1.7vw; font-weight: bolder" />
+        <h:form id="formMostrar">
+           
+            <p:dataTable id="tablauser" var="per1" value="#{usuariosControl.usuarios}"
+                         style="width:100%;" rows="10" rowsPerPageTemplate="5,8,10" 
+                         emptyMessage ="No hay usuarios disponibles"
+                         paginator="true" paginatorPosition="bottom"
+                         paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         filteredValue="#{usuariosControl.filteredUsuarios}" widgetVar="usuariosTabla"  >
+               <f:facet name="header">
+                   <p:commandLink id="insus" title="" update=":formInsertar" actionListener="#{usuariosControl.CargaVentanaInserta('')}" style="float: left;" type="button" rendered="#{accesoC.rolbotones.insertar eq 'S'}" >
+                            <h:graphicImage value="resources/img/generales/018 agregar.png" width="30" height="30" />
+                            </p:commandLink>
+                   <p:tooltip for="insus" value="Insertar Usuario" showEffect="clip" hideEffect="clip" position="top"/>
+                                <p:outputPanel>
+                                    <h:outputText value="Buscar: " />
+                                    <p:inputText id="globalFilter" onkeyup="PF('usuariosTabla').filter()" style="width:150px" placeholder="Escribe para buscar"/>
+                                </p:outputPanel>
+                     </f:facet>
+                <p:column headerText="#" width="4%" filterBy="#{per1.noUsuario}" filterStyle="width:90%;" filterMatchMode="contains">
+                    <h:outputText value="#{per1.noUsuario}" />
+                </p:column>
+                
+                <p:column headerText="USUARIO" width="10%" filterBy="#{per1.clave}" filterStyle="width:90%;" filterMatchMode="contains">
+                    <h:outputText value="#{per1.clave}" />
+                </p:column>
+                <p:column headerText="NOMBRE" width="20%" filterBy="#{per1.nombre}" filterStyle="width:90%;" filterMatchMode="contains">
+                    <h:outputText value="#{per1.nombre} #{per1.apellidoPaterno} #{per1.apellidoMaterno}" />
+                </p:column>
+                <p:column headerText="CORREO" width="22%" filterBy="#{per1.correo}" filterStyle="width:90%;" filterMatchMode="contains">
+                    <h:outputText value="#{per1.correo}" />
+                </p:column>
+                <p:column headerText="ROL" width="12%" filterBy="#{per1.descripcionRol}" filterStyle="width:90%;" filterMatchMode="contains">
+                    <h:outputText value="#{per1.descripcionRol}" />
+                </p:column>
+               <p:column headerText="ACTUALIZAR" width="8%">
+                            
+                            <center>
+                           <p:commandLink id="actus" disabled="#{per1.estatus eq 'I'}" title="" oncomplete="PF('dlgmodificar').show()" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" update=":formModificar" >
+                               <f:setPropertyActionListener target="#{usuariosControl.usuario}" value="#{per1}" />
+                               <h:graphicImage value="resources/img/generales/020 actualizar.png" style="width: 30%; height: 30%;" />
+                           </p:commandLink>
+                                <p:tooltip for="actus" value="Modificar Usuario" showEffect="clip" hideEffect="clip" position="top"/>
+                                </center>
+                        </p:column>
+                        <p:column headerText="INACTIVAR" width="8%">
+                            
+                            <center>
+                           <p:commandLink id="inaus" disabled="#{per1.estatus eq 'I'}" title="" oncomplete="PF('dlgeliminar').show()" rendered="#{accesoC.rolbotones.eliminar eq 'S'}" update=":formEliminar" >
+                           <f:setPropertyActionListener target="#{usuariosControl.usuario}" value="#{per1}" />
+                           <h:graphicImage value="resources/img/generales/019 quitar.png" style="width: 30%; height: 30%;" />
+                            </p:commandLink>
+                           <p:tooltip for="inaus" value="Inactivar usuario" showEffect="clip" hideEffect="clip" position="top"/>
+                            </center>
+                        </p:column>
+                
+                    <p:column headerText="ASIGNAR UR" width="8%">
+                            
+                            <center>
+                                <p:commandLink id="asius" disabled="#{per1.estatus eq 'I'}" title="" actionListener="#{usuariosControl.asignaur(per1)}" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" >
+                           <f:setPropertyActionListener target="#{usuariosControl.usuario}" value="#{per1}" />
+                           <h:graphicImage value="resources/img/generales/asignar.png" style="width: 24%; height: 24%;" />
+                            </p:commandLink>
+                           <p:tooltip for="asius" value="Asingar ur a usuario" showEffect="clip" hideEffect="clip" position="top"/>
+                            </center>
+                        </p:column>
+                
+                     <p:column headerText="ACTUALIZAR PASSWORD" width="8%">
+                            
+                            <center>
+                           <p:commandLink id="actpas" disabled="#{per1.estatus eq 'I'}" title="" oncomplete="PF('dlgpasaporte').show()" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" update=":formPasaporte" >
+                           <f:setPropertyActionListener target="#{usuariosControl.usuario}" value="#{per1}" />
+                           <h:graphicImage value="resources/img/generales/pasaporte.png" style="width: 24%; height: 24%;" />
+                            </p:commandLink>
+                            <p:tooltip for="actpas" value="Actualizar Password" showEffect="clip" hideEffect="clip" position="top"/>
+                            </center>
+                        </p:column>
+                
+                </p:dataTable>
+
+            
+                </h:form>
+            
+            </center>
+        <p:dialog id="dlg1" header="Insertar Usuario" showEffect="explode" hideEffect="explode" widgetVar="dlginsertar" 
+                  resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true" >
+                    
+            <h:form id="formInsertar" class="dialogC">
+                <p:messages id="messages" closable="true"/>
+                <p:growl id="mg" showSummary="true" showDetail="true"/>
+                        <p:panelGrid columns="3">
+                            
+                     
+                     <p:outputLabel value="Usuario" for="clave" />
+                     <p:inputText id="clave" value="#{usuariosControl.usuario.clave}" requiredMessage="Se requiere Usuario" required="true" style="text-transform: uppercase;" >
+                     <p:watermark for="clave" value="USUARIO" />  
+                     </p:inputText>
+                     <p:message for="clave" display="icon" />
+                     <p:outputLabel value="Password" for="pasaporte" />
+                     <p:inputText id="pasaporte" value="#{usuariosControl.usuario.pasaporte}" requiredMessage="Se requiere Password" required="true" style="text-transform: uppercase;" >
+                       <p:watermark for="pasaporte" value="PASSWORD" />  
+                     </p:inputText>
+                     <p:message for="pasaporte" display="icon" />
+                     <p:outputLabel value="Apellido Paterno" styleClass=""/>
+                     <p:inputText id="itApPaterno" value="#{usuariosControl.usuario.apellidoPaterno}" required="true" requiredMessage="Se rerquiere apellido paterno"   />
+                    <p:message for="itApPaterno" display="icon" />
+                    <p:outputLabel value="Apellido Materno" styleClass=""/>
+                    <p:inputText id="itApMaterno" value="#{usuariosControl.usuario.apellidoMaterno}"   />
+                    <p:message for="itApMaterno" display="icon" />
+                    <p:outputLabel value="Nombre" styleClass=""/>
+                    <p:inputText id="itNombre" value="#{usuariosControl.usuario.nombre}" required="true" requiredMessage="Se requiere Nombre"   />
+                    <p:message for="itNombre" display="icon" />
+                    <p:outputLabel value="Email" styleClass=""/>
+                    <p:inputText id="itEmail" value="#{usuariosControl.usuario.correo}" required="true" requiredMessage="El email es requerido" placeholder="Formato algo@algo.com"/>
+                    <p:message for="itEmail" display="icon" />
+                    <p:outputLabel for="itTelefono" value="Telefono :" />
+                    <p:inputMask id="itTelefono" value="#{usuariosControl.usuario.telefono}" mask="(999) 999-9999" required="true" requiredMessage="El telefono es requerido" placeholder="(999) 999-9999"/>
+                     <p:message for="itTelefono" display="icon" />
+                     <p:outputLabel value="ROL: " for="rol"/>
+                     <p:selectOneMenu id="rol" value="#{usuariosControl.usuario.noRol}" style="width: 90%;" required="true" requiredMessage="El rol es requerido" >
+                        <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                        <f:selectItems var="rol" value="#{usuariosControl.roles}" itemLabel="#{rol.descripcion}" itemValue="#{rol.noRol}" />
+                         </p:selectOneMenu>
+                     <p:message for="rol" display="icon" />
+                        </p:panelGrid>
+                        <p:commandButton value="Guardar" update="mg :formInsertar :formMostrar"
+                                         actionListener="#{usuariosControl.insertar()}" 
+                                         oncomplete="actualizaListUsuarios();"
+                                         />
+                    </h:form>
+                </p:dialog>
+        
+        <p:dialog id="dlg2" header="Modificar persona" showEffect="explode" hideEffect="explode" widgetVar="dlgmodificar" 
+                   resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+           
+                
+                    <h:form id="formModificar" class="dialogC">
+                     <p:messages id="messages" closable="true"/>
+ <p:growl id="mg" showSummary="true" showDetail="true"/>
+  <p:panelGrid columns="3" >
+                            
+                      <p:outputLabel value="Usuario" for="clave" />
+                      <p:inputText id="clave" value="#{usuariosControl.usuario.clave}" required="true" requiredMessage="El usuario es requerido" />
+                     <p:message for="clave" display="icon" />
+                     <p:outputLabel value="Apellido Paterno" styleClass=""/>
+                     <p:inputText id="itApPaterno" value="#{usuariosControl.usuario.apellidoPaterno}" required="true" requiredMessage="El apellido paterno es requerido"   />
+                    <p:message for="itApPaterno" display="icon" />
+                    <p:outputLabel value="Apellido Materno" styleClass=""/>
+                    <p:inputText id="itApMaterno" value="#{usuariosControl.usuario.apellidoMaterno}"   />
+                    <p:message for="itApMaterno" display="icon" />
+                    <p:outputLabel value="Nombre" styleClass=""/>
+                    <p:inputText id="itNombre" value="#{usuariosControl.usuario.nombre}" required="true" requiredMessage="El nombre es requerido"   />
+                    <p:message for="itNombre" display="icon" />
+                    <p:outputLabel value="Email" styleClass=""/>
+                    <p:inputText id="itEmail" value="#{usuariosControl.usuario.correo}" required="true" requiredMessage="El email es requerido" placeholder="Formato algo@algo.com"/>
+                    <p:message for="itEmail" display="icon" />
+                    <p:outputLabel for="itTelefono" value="Telefono :" />
+                    <p:inputMask id="itTelefono" value="#{usuariosControl.usuario.telefono}" mask="(999) 999-9999" required="true" requiredMessage="El telefono es requerido" placeholder="(999) 999-9999"/>
+                     <p:message for="itTelefono" display="icon" />
+                     <p:outputLabel value="ROL: " for="rol"/>
+                     <p:selectOneMenu id="rol" value="#{usuariosControl.usuario.noRol}" style="width: 90%;" required="true" requiredMessage="El rol es requerido" >
+                        <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                        <f:selectItems var="rol" value="#{usuariosControl.roles}" itemLabel="#{rol.descripcion}" itemValue="#{rol.noRol}" />
+                         </p:selectOneMenu>
+                     <p:message for="rol" display="icon" />
+                        </p:panelGrid>
+                        <p:commandButton value="Modificar" update="mg :formModificar :formMostrar"
+                                         actionListener="#{usuariosControl.modificar()}" oncomplete="actualizaListUsuarios();"
+                                         />
+                        
+                        
+                    </h:form>
+                
+            
+                </p:dialog>
+                
+                
+                <p:dialog id="dlg3" header="Inactivar Usuario" showEffect="explode" hideEffect="explode" 
+                          widgetVar="dlgeliminar" resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+                  
+                    <h:form id="formEliminar" class="dialogC">
+                        
+                           <p:growl id="mg" showSummary="true" showDetail="true"/>
+                       
+                        
+                        
+                           <h:outputText value="¿Desea Inactivar? #{usuariosControl.usuario.clave} " />    
+                
+                           <p:commandButton value="Si" update="mg :formMostrar" actionListener="#{usuariosControl.eliminar()}" 
+                                              oncomplete="actualizaListUsuarios();" >
+                           
+                            
+                        </p:commandButton>
+                            
+                        <p:commandButton value="No" actionListener="#{usuariosControl.cancelarEliminar()}" />
+                       
+                    </h:form>
+                </p:dialog>
+        
+        <p:dialog id="dlg4" header="Asignar UR a Usuario" showEffect="explode" hideEffect="explode" widgetVar="dlgasignar" appendTo="@(body)" modal="true"
+                  resizable="false" width="70%" height="80%" position="center" onShow="asignaIni();" closeOnEscape="true" >
+
+
+                <h:form id="formAsignar" class="dialogC">
+                        <p:messages id="messages" closable="true"/>
+                         <p:growl id="mg" showSummary="true" showDetail="true"/> 
+                       
+                         <center>
+                            <p:outputLabel value="USUARIO:" />
+                            <p:inputText value="#{usuariosControl.usuario.clave}" readonly="true" />
+                              
+                            <p:dataTable id="usur" var="ur" value="#{usuariosControl.urs}"
+                                         paginator="true" paginatorPosition="top" emptyMessage="No hay Urs disponibles"
+                                            paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rows="10" style=" width: 100%;" filteredValue="#{usuariosControl.filteredUrs}" widgetVar="urTabla"
+                                            currentPageReportTemplate="({endRecord} de {totalRecords} 
+                                                                                URS)">
+                                <f:facet name="header">
+                                    <h:outputText value="SELECCIONAR TODO: "  />
+                                    <p:selectBooleanButton value="#{usuariosControl.isSelectedAll}" onLabel="SI" offLabel="NO" style="width:60px" >
+                                        <p:ajax update="usur" listener="#{usuariosControl.selectodo()}" />
+                                    </p:selectBooleanButton>
+                                    <p:outputPanel>
+                                    <h:outputText value="Buscar: " />
+                                    <p:inputText id="globalFilter" style="width:150px" placeholder="Escribe para buscar"/>
+                                    <p:commandButton onclick="PF('urTabla').filter()" value="Buscar" update="usur" />
+                                </p:outputPanel>
+                                    
+                                </f:facet>
+                                    <p:column headerText="NO UR" width="10%" filterBy="#{ur.noUr}" filterStyle="width:90%;" filterMatchMode="contains">
+                                        <h:outputText value="#{ur.noUr}"  />
+                                    </p:column>
+                                <p:column headerText="CLAVE UR" width="10%" filterBy="#{ur.claveUr}" filterStyle="width:90%;" filterMatchMode="contains">
+                                    <h:outputText value="#{ur.claveUr}"  />
+                                    </p:column>
+                                    <p:column headerText="DESCRIPCION" width="70%" filterBy="#{ur.ur}" filterStyle="width:90%;" filterMatchMode="contains">
+                                        <h:outputText value="#{ur.ur}" />
+                                    </p:column>
+                                <p:column headerText="PERMISO" style="text-align: center" width="10%">
+                                    <p:selectBooleanButton value="#{ur.urSeleccionada}" onLabel="SI" offLabel="NO" style="width:60px" >
+                                        <p:ajax listener="#{usuariosControl.selecUno(ur)}" />
+                                    </p:selectBooleanButton>
+                                </p:column>
+                              </p:dataTable>
+                            
+                            <p:commandButton value="Asignar" update="mg :formMostrar"
+                                             actionListener="#{usuariosControl.asignar()}"  
+                                             oncomplete="actualizaListUsuarios();" />
+
+                            <p:commandButton value="Cancelar" actionListener="#{usuariosControl.cancelarAsignar()}" />
+                        </center>
+
+                </h:form>
+
+
+            </p:dialog>
+        
+       <p:dialog id="dlg5" header="Actualizar Password" showEffect="explode" hideEffect="explode" widgetVar="dlgpasaporte" 
+                 resizable="false" width="30%" height="20%" closeOnEscape="true" appendTo="@(body)" modal="true">
+                
+                <h:form id="formPasaporte" class="dialogC">
+                          <p:messages id="messages" closable="true"/>
+                         <p:growl id="mg" showSummary="true" showDetail="true"/> 
+                       
+                         <center>
+                             <br/>
+                             <br/>
+                             <p:panelGrid columns="3" >
+                            <p:outputLabel value="USUARIO: " />
+                            <p:inputText value="#{usuariosControl.usuario.clave}" maxlength="10" size="10" readonly="true" />
+                            <br/>
+                           <p:outputLabel value="PASSWORD" for="pasaporte" />
+                           <p:inputText id="pasaporte" value="#{usuariosControl.usuario.pasaporte}" maxlength="10" size="10" required="true" requiredMessage="Se requiere password" style="text-transform: uppercase;" >
+                       <p:watermark for="pasaporte" value="PASSWORD" />  
+                     </p:inputText>
+                     <p:message for="pasaporte" display="icon" />
+                     <p:outputLabel value=""/>
+                            <p:commandButton value="Asignar" update="mg :formPasaporte :formMostrar"
+                                             actionListener="#{usuariosControl.modificarPasaporte()}"  
+                                             oncomplete="actualizaListUsuarios();" />
+                            <p:outputLabel value=""/>
+                         </p:panelGrid>
+                        </center>
+
+                </h:form>
+
+
+            </p:dialog>
+        
+         <h:form>
+            <p:remoteCommand name="actualizaListUsuarios" update=":formMostrar" actionListener="#{usuariosControl.init()}" />
+            <p:remoteCommand name="asignaIni" update=":formAsignar" />
+         </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+    </h:body>
+    </ui:define>
+</ui:composition>
+

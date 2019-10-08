@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>BITVE</title>
+        <h:outputStylesheet library="css" name="banner.css" />
+        <h:outputStylesheet library="css" name="main.css" />
+        <link href="../resources/img/icobitve.ico" rel="shortcut icon" type="image/x-icon" />
+    </h:head>
+    <h:body>
+        <div id="page" style="width: 100%; height: 100%;">
+            <div id="headerDiv">
+                <div class="logo1BannerDiv">
+                    <p:graphicImage cache="false" value="resources/img/SEP.png" style="width: 80%; height: 110%;"/>
+                </div>
+                <div class="textBannerDiv">BITACORA DE VEHICULOS OFICIALES</div>
+            </div>
+            <div class="barraDiv"></div>
+            <div id="content" class="contentCenterDiv">
+		<ui:insert name="content" ></ui:insert>
+	    </div>
+    	</div>
+    </h:body>
+</html>

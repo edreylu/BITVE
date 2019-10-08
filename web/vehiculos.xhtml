@@ -1,0 +1,257 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+
+<ui:composition template="menu.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:define name="contenido">
+        <h:head>
+            <title>VEHICULOS</title>
+             
+        </h:head>
+        <f:metadata>
+            <f:viewAction action="#{vehiculoControl.init()}" />   
+        </f:metadata>       
+        <h:body>
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+        <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion('vehiculos.xhtml')}"/>  
+            <center>
+                <h:outputText value="VEHICULOS" style="text-align: center; font-size: 1.7vw; font-weight: bolder" />
+                
+                <h:form id="formMostrar">
+                    
+                    <p:dataTable id="tablave" var="ve" value="#{vehiculoControl.vehiculos}"
+                                 style="width:100%;" rows="10" rowsPerPageTemplate="5,8,10" 
+                                 emptyMessage ="No hay Vehiculos disponibles"  
+                                 paginator="true" paginatorPosition="bottom"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 filteredValue="#{vehiculoControl.filteredVehiculo}" widgetVar="veTabla">
+                   
+                        <f:facet name="header">
+                            <p:commandLink id="insve" title="" update=":formInsertar" actionListener="#{vehiculoControl.CargaVentanaInserta('')}" style="float: left;" type="button" rendered="#{accesoC.rolbotones.insertar eq 'S'}" >
+                            <h:graphicImage value="resources/img/generales/018 agregar.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="insve" value="Insertar Vehiculo" showEffect="clip" hideEffect="clip" position="top"/>
+                            <p:commandLink id="repve" title="" ajax="false" actionListener="#{vehiculoControl.generaExcel()}" style="float: left;">
+                               <h:graphicImage value="resources/img/generales/021 reporte.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="repve" value="Reporte Excel" showEffect="clip" hideEffect="clip" position="top"/>
+                                <p:outputPanel>
+                                    <h:outputText value="Buscar: " />
+                                    <p:inputText id="globalFilter" onkeyup="PF('veTabla').filter()" style="width:150px" placeholder="Escribe para buscar"/>
+                                </p:outputPanel>
+                            </f:facet>
+         
+                        <p:column headerText="#" width="4%" filterBy="#{ve.noVehiculo}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.noVehiculo}" />
+                        </p:column>
+
+                        <p:column headerText="SERIE" width="18%" filterBy="#{ve.serie}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.serie}" />
+                        </p:column>
+                       
+                        <p:column headerText="PLACAS" width="10%" filterBy="#{ve.placas}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.placas}" />
+                        </p:column>
+                        
+                        <p:column headerText="MARCA" width="13%" filterBy="#{ve.marca}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.marca}" />
+                        </p:column>
+                        
+                        <p:column headerText="MODELO" width="6%" filterBy="#{ve.modelo}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.modelo}" />
+                        </p:column>
+                        <p:column headerText="KM" width="6%" filterBy="#{ve.km}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.km}" />
+                        </p:column>
+                        <p:column headerText="TIPO" width="14%" filterBy="#{ve.tipo}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.tipo}" />
+                        </p:column>
+                        <p:column headerText="FECHA" width="8%" filterBy="#{ve.fechaEvento}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText value="#{ve.fechaEvento}" />
+                        </p:column>
+                        <p:column headerText="UR" width="5%" filterBy="#{ve.claveUr}" filterMatchMode="contains" filterStyle="width:90%;" >
+                            <h:outputText id="cur" value="#{ve.claveUr}" />
+                            <p:tooltip id="toolTipGrow" for="cur" value="#{ve.ur}" showEffect="clip" hideEffect="clip" position="top"/>
+                        </p:column>
+                        <p:column headerText="ESTATUS" width="8%" filterBy="#{ve.estatus}" filterMatchMode="contains" style="text-align: center;">
+                            
+                            <p:commandLink id="inact" title="" value="INACTIVO" rendered="#{accesoC.rolbotones.actualizar eq 'S' and ve.estatus eq 'I'}" oncomplete="PF('dlgactivardesactivar').show()" update=":formActivarDesactivar">
+                              <f:setPropertyActionListener target="#{vehiculoControl.vehiculo}" value="#{ve}" />
+                           </p:commandLink>
+                            <p:tooltip for="actve" value="Inactivo, Click para Activar" showEffect="clip" hideEffect="clip" position="top"/>
+                            <p:commandLink id="act" title="" value="ACTIVO" rendered="#{accesoC.rolbotones.actualizar eq 'S' and ve.estatus eq 'A'}" oncomplete="PF('dlgactivardesactivar').show()" update=":formActivarDesactivar">
+                              <f:setPropertyActionListener target="#{vehiculoControl.vehiculo}" value="#{ve}" />
+                           </p:commandLink>
+                            <p:tooltip for="act" value="Activo, Click para Inactivar" showEffect="clip" hideEffect="clip" position="top"/>    
+                        </p:column>
+                        <p:column headerText="ACTUALIZAR" width="8%" style="text-align: center;">
+                            
+                            <p:commandLink id="actve" title="" disabled="#{ve.estatus eq 'I'}" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" oncomplete="PF('dlgmodificar').show()" update=":formModificar">
+                              <f:setPropertyActionListener target="#{vehiculoControl.vehiculo}" value="#{ve}" />
+                               <h:graphicImage value="resources/img/generales/020 actualizar.png" style="width: 30%;" />
+                           </p:commandLink>
+                            <p:tooltip for="actve" value="Actualizar Vehiculo" showEffect="clip" hideEffect="clip" position="top"/>
+                        </p:column>
+                        
+                    </p:dataTable>
+
+
+                </h:form>
+
+            </center>
+            
+           <p:dialog id="dlg1" header="Insertar vehiculo" showEffect="explode" hideEffect="explode" widgetVar="dlginsertar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+               <h:form id="formInsertar" class="dialogC">
+                    <p:growl id="mg" showSummary="true" showDetail="true"/>
+                    <p:panelGrid columns="6">
+
+                            <p:outputLabel value="SERIE" for="serie" />
+                            <p:inputText id="serie" value="#{vehiculoControl.vehiculo.serie}" maxlength="17" style="text-transform: uppercase;" requiredMessage="Se requiere Serie" required="true" />
+                            <p:message for="serie" display="icon" />
+                            <p:outputLabel value="PLACAS" for="placas" />
+                            <p:inputText id="placas" value="#{vehiculoControl.vehiculo.placas}" maxlength="10" style="text-transform: uppercase;" requiredMessage="Se requiere Placas" required="true" />
+                            <p:message for="placas" display="icon" />
+                            <p:outputLabel value="MARCA" for="marca" />
+                            <p:selectOneMenu id="marca" filter="true" filterMatchMode="contains" value="#{vehiculoControl.vehiculo.noMarca}" style="width: 90%;" required="true" requiredMessage="Se requiere Ur" >
+                        <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                        <f:selectItems var="marca" value="#{vehiculoControl.marcas}" itemLabel="#{marca.marca}" itemValue="#{marca.noMarca}" />
+                         </p:selectOneMenu>
+                            <p:message for="marca" display="icon" />
+                            <p:outputLabel value="MODELO" for="modelo" />
+                            <p:inputMask id="modelo" value="#{vehiculoControl.vehiculo.modelo}" mask="9999" requiredMessage="Se requiere Modelo" required="true" />
+                            <p:message for="modelo" display="icon" />
+                            <p:outputLabel value="TIPO" for="tipo" />
+                            <p:inputText id="tipo" value="#{vehiculoControl.vehiculo.tipo}" requiredMessage="Se requiere Tipo" required="true" />
+                            <p:message for="tipo" display="icon" />
+                            <p:outputLabel value="UR" for="ur" />
+                            <p:selectOneMenu id="ur" filter="true" filterMatchMode="contains" value="#{vehiculoControl.vehiculo.noUr}" style="width: 90%;" required="true" requiredMessage="Se requiere Ur" >
+                        <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                        <f:selectItems var="ur" value="#{vehiculoControl.urs}" itemLabel="#{ur.ur}" itemValue="#{ur.noUr}" />
+                         </p:selectOneMenu>
+                            <p:message for="ur" display="icon" />
+                            <p:outputLabel value="COLOR" for="color" />
+                            <p:inputText id="color" value="#{vehiculoControl.vehiculo.color}" style="text-transform: uppercase;" requiredMessage="Se requiere Color" required="true" />
+                            <p:message for="color" display="icon" />
+                            <p:outputLabel value="RESGUARDANTE" for="resguardante" />
+                            <p:inputText id="resguardante" value="#{vehiculoControl.vehiculo.resguardante}" size="40" style="text-transform: uppercase;" requiredMessage="Se requiere Resguardante" required="true" />
+                            <p:message for="resguardante" display="icon" />
+                            <p:outputLabel value="PUESTO" for="puesto" />
+                            <p:inputText id="puesto" value="#{vehiculoControl.vehiculo.puesto}" style="text-transform: uppercase;" requiredMessage="Se requiere Puesto" required="true" />
+                            <p:message for="puesto" display="icon" />
+                            <p:outputLabel value="IME" for="ime" />
+                            <p:inputText id="ime" value="#{vehiculoControl.vehiculo.ime}" style="text-transform: uppercase;" requiredMessage="Se requiere IME" required="true" />
+                            <p:message for="ime" display="icon" />
+                            
+                    </p:panelGrid>
+                    <br/>
+                    <center>
+                    <p:commandButton value="Guardar" update="mg :formInsertar :formMostrar"
+                                     actionListener="#{vehiculoControl.insertar()}" oncomplete="PF('veTabla').filter()"/>
+                </center>
+                </h:form>
+            </p:dialog>
+            
+            <p:dialog id="dlg2" header="Modificar Vehiculo" showEffect="explode" hideEffect="explode" widgetVar="dlgmodificar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+
+                <h:form id="formModificar" class="dialogC">
+
+                         <p:growl id="mg" showSummary="true" showDetail="true"/>  
+                                 <p:panelGrid columns="6">
+
+                            <p:outputLabel value="SERIE" for="serie" />
+                            <p:inputText id="serie" value="#{vehiculoControl.vehiculo.serie}" requiredMessage="Se requiere Serie" required="true" />
+                            <p:message for="serie" display="icon" />
+                            <p:outputLabel value="PLACAS" for="placas" />
+                            <p:inputText id="placas" value="#{vehiculoControl.vehiculo.placas}" requiredMessage="Se requiere Placas" required="true" />
+                            <p:message for="placas" display="icon" />
+                            <p:outputLabel value="MARCA" for="marca" />
+                            <p:selectOneMenu id="marca" filter="true" filterMatchMode="contains" value="#{vehiculoControl.vehiculo.noMarca}" style="width: 90%;" required="true" requiredMessage="Se requiere Ur" >
+                            <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                            <f:selectItems var="marca" value="#{vehiculoControl.marcas}" itemLabel="#{marca.marca}" itemValue="#{marca.noMarca}" />
+                             </p:selectOneMenu>
+                            <p:message for="marca" display="icon" />
+                            <p:outputLabel value="MODELO" for="modelo" />
+                            <p:inputMask id="modelo" value="#{vehiculoControl.vehiculo.modelo}" mask="9999" requiredMessage="Se requiere Modelo" required="true" />
+                            <p:message for="modelo" display="icon" />
+                            <p:outputLabel value="TIPO" for="tipo" />
+                            <p:inputText id="tipo" value="#{vehiculoControl.vehiculo.tipo}" requiredMessage="Se requiere Tipo" required="true" />
+                            <p:message for="tipo" display="icon" />
+                            <p:outputLabel value="UR" for="ur" />
+                            <p:selectOneMenu id="ur" filter="true" filterMatchMode="contains" value="#{vehiculoControl.vehiculo.noUr}" style="width: 90%;" required="true" requiredMessage="Se requiere Ur" >
+                        <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                        <f:selectItems var="ur" value="#{vehiculoControl.urs}" itemLabel="#{ur.ur}" itemValue="#{ur.noUr}" />
+                         </p:selectOneMenu>
+                            <p:message for="ur" display="icon" />
+                            <p:outputLabel value="COLOR" for="color" />
+                            <p:inputText id="color" value="#{vehiculoControl.vehiculo.color}" style="text-transform: uppercase;" requiredMessage="Se requiere Color" required="true" />
+                            <p:message for="color" display="icon" />
+                            <p:outputLabel value="RESGUARDANTE" for="resguardante" />
+                            <p:inputText readonly="true" id="resguardante" value="#{vehiculoControl.vehiculo.resguardante}" size="40" style="text-transform: uppercase;" requiredMessage="Se requiere Resguardante" required="true" />
+                            <p:message for="resguardante" display="icon" />
+                            <p:outputLabel value="PUESTO" for="puesto" />
+                            <p:inputText readonly="true" id="puesto" value="#{vehiculoControl.vehiculo.puesto}" style="text-transform: uppercase;" requiredMessage="Se requiere Puesto" required="true" />
+                            <p:message for="puesto" display="icon" />
+                            <p:outputLabel value="IME" for="ime" />
+                            <p:inputText id="ime" value="#{vehiculoControl.vehiculo.ime}" style="text-transform: uppercase;" requiredMessage="Se requiere IME" required="true" />
+                            <p:message for="ime" display="icon" />
+                            
+                    </p:panelGrid>
+                         <br/>
+                         <center>
+                        <p:commandButton value="Modificar" update="mg :formMostrar"
+                                         actionListener="#{vehiculoControl.modificar()}"
+                                         oncomplete="PF('veTabla').filter()"
+                                         />
+
+                        <p:commandButton value="Cancelar" actionListener="#{vehiculoControl.cancelarActualizar()}"/>
+                        </center>
+
+                </h:form>
+
+
+            </p:dialog>
+
+            
+            <p:dialog id="dlg3" header="Estatus del Vehiculo" showEffect="explode" hideEffect="explode" 
+                      widgetVar="dlgactivardesactivar" resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+                <h:form id="formActivarDesactivar" class="dialogC">
+
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+
+
+                        <h:outputText rendered="#{vehiculoControl.vehiculo.estatus eq 'A'}" value="¿Desea inactivar el vehiculo?" />    
+                        <p:commandButton rendered="#{vehiculoControl.vehiculo.estatus eq 'A'}" value="Si" 
+                                         update="mg :formMostrar" actionListener="#{vehiculoControl.activardesactivar(3)}" 
+                                         oncomplete="actualizaListVehiculos();" > </p:commandButton>
+                   <h:outputText rendered="#{vehiculoControl.vehiculo.estatus eq 'I'}" value="¿Desea activar el vehiculo?" />    
+                        <p:commandButton rendered="#{vehiculoControl.vehiculo.estatus eq 'I'}" value="Si" 
+                                         update="mg :formMostrar" actionListener="#{vehiculoControl.activardesactivar(4)}" 
+                                         oncomplete="PF('veTabla').filter()" > </p:commandButton>
+                   <p:commandButton value="No" actionListener="#{vehiculoControl.cancelarActivarDesactivar()}" />
+                
+                </h:form>
+            </p:dialog>
+
+            
+
+
+
+         <h:form>
+          <p:remoteCommand name="actualizaListVehiculos" update=":formMostrar" actionListener="#{vehiculoControl.init()}" /> 
+         </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+        </h:body>
+    </ui:define>
+</ui:composition>
+

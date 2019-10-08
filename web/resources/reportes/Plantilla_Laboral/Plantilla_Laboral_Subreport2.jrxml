@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Plantilla_Nominal_Subreport1" language="groovy" pageWidth="742" pageHeight="562" orientation="Landscape" columnWidth="742" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="NOCENTRO" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+(SELECT *
+  FROM (
+SELECT PE.APELLIDO_PATERNO||' '||PE.APELLIDO_MATERNO||' '||PE.NOMBRE NOMBRE
+  FROM COMBINACIONES_CENTROS   CC,
+       PERSONAL                PE
+ WHERE CC.NO_CENTRO   = $P{NOCENTRO}
+   AND CC.ESTADO      = 1
+   AND CC.NO_PERSONAL = PE.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND EXISTS(SELECT NULL
+                FROM HORARIOS_CENTRO_TRABAJO HC,
+                     KCICLOESCOLAR     KC
+               WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                 AND HC.ESTADO_HORARIO    = 'A'
+                 AND ((HC.NO_FUNCION      = 1
+                 AND HC.NO_SUBFUNCION     = 2)
+                  OR (HC.NO_FUNCION       = 5
+                 AND HC.NO_SUBFUNCION     < 7))
+                 AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                 AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                 AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                 AND KC.CVESITUACION      = 11
+                 AND HC.ESTADO_HORARIO='A'
+                     AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual))
+UNION
+SELECT PE.APELLIDO_PATERNO||' '||PE.APELLIDO_MATERNO||' '||PE.NOMBRE NOMBRE
+  FROM COMBINACIONES_CENTROS CC,
+       PERSONAL_PLANTILLA    PE
+ WHERE CC.NO_CENTRO   = $P{NOCENTRO}
+   AND CC.NO_PERSONAL < 0
+   AND CC.ESTADO      = 1
+   AND CC.NO_PERSONAL = PE.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND EXISTS(SELECT NULL
+                FROM HORARIOS_CENTRO_TRABAJO HC,
+                     KCICLOESCOLAR     KC
+               WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                 AND HC.ESTADO_HORARIO    = 'A'
+                 AND ((HC.NO_FUNCION      = 1
+                 AND HC.NO_SUBFUNCION     = 2)
+                  OR (HC.NO_FUNCION       = 5
+                 AND HC.NO_SUBFUNCION     < 7))
+                 AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                 AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                 AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                 AND KC.CVESITUACION      = 11
+                 AND HC.ESTADO_HORARIO='A'
+                 AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual))
+UNION
+SELECT PE.NOMBRE NOMBRE
+  FROM COMBINACIONES_CENTROS_E CC,
+       PERSONAL_E              PE
+ WHERE CC.NO_CENTRO   = $P{NOCENTRO}
+   AND CC.ESTADO      = 1
+   AND CC.NO_PERSONAL = PE.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND EXISTS(SELECT NULL
+                FROM HORARIOS_CENTRO_TRABAJO_E HC,
+                     KCICLOESCOLAR       KC
+               WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                 AND HC.ESTADO_HORARIO    = 'A'
+                 AND ((HC.NO_FUNCION      = 1
+                 AND HC.NO_SUBFUNCION     = 2)
+                  OR (HC.NO_FUNCION       = 5
+                 AND HC.NO_SUBFUNCION     < 7))
+                 AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                 AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                 AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                 AND KC.CVESITUACION      = 11
+                 AND HC.ESTADO_HORARIO='A'
+                 AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)))
+ WHERE ROWNUM = 1) DIRECTOR,
+(SELECT *
+  FROM (
+SELECT PE.APELLIDO_PATERNO||' '||PE.APELLIDO_MATERNO||' '||PE.NOMBRE NOMBRE
+  FROM CENTROS_DE_TRABAJO_DETALLE CD,
+       CENTROS_DE_TRABAJO_DETALLE CT,
+       COMBINACIONES_CENTROS      CC,
+       PERSONAL                   PE
+ WHERE CD.NO_CENTRO   = $P{NOCENTRO}
+   AND CD.ESTADO      = 1
+   AND CT.CLAVE_AREA  = DECODE(CD.CCT_ZONA,NULL,CD.CLAVE_AREA,CD.CCT_ZONA)
+   AND CT.ESTADO      = 1
+   AND CC.NO_CENTRO   = CT.NO_CENTRO
+   AND CC.ESTADO      = 1
+   AND CC.NO_PERSONAL = PE.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND EXISTS(SELECT NULL
+                FROM HORARIOS_CENTRO_TRABAJO HC,
+                     KCICLOESCOLAR     KC
+               WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                 AND HC.ESTADO_HORARIO    = 'A'
+                 AND HC.NO_FUNCION        = 1
+                 AND HC.NO_SUBFUNCION     = 4
+                 AND HC.NO_SUBSUBFUNCION  = 1
+                 AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                 AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                 AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                 AND KC.CVESITUACION      = 11
+                 AND HC.ESTADO_HORARIO='A'
+                 AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual))
+UNION
+SELECT PE.APELLIDO_PATERNO||' '||PE.APELLIDO_MATERNO||' '||PE.NOMBRE NOMBRE
+  FROM CENTROS_DE_TRABAJO_DETALLE CD,
+       CENTROS_DE_TRABAJO_DETALLE CT,
+       COMBINACIONES_CENTROS CC,
+       PERSONAL_PLANTILLA    PE
+ WHERE CD.NO_CENTRO   = $P{NOCENTRO}
+   AND CD.ESTADO      = 1
+   AND CT.CLAVE_AREA  = DECODE(CD.CCT_ZONA,NULL,CD.CLAVE_AREA,CD.CCT_ZONA)
+   AND CT.ESTADO      = 1
+   AND CC.NO_CENTRO   = CT.NO_CENTRO
+   AND CC.NO_PERSONAL < 0
+   AND CC.ESTADO      = 1
+   AND CC.NO_PERSONAL = PE.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND EXISTS(SELECT NULL
+                FROM HORARIOS_CENTRO_TRABAJO HC,
+                     KCICLOESCOLAR     KC
+               WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                 AND HC.ESTADO_HORARIO    = 'A'
+                 AND HC.NO_FUNCION        = 1
+                 AND HC.NO_SUBFUNCION     = 4
+                 AND HC.NO_SUBSUBFUNCION  = 1
+                 AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                 AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                 AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                 AND KC.CVESITUACION      = 11
+                 AND HC.ESTADO_HORARIO='A'
+                 AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual))
+UNION
+SELECT PE.NOMBRE NOMBRE
+  FROM CENTROS_DE_TRABAJO_DETALLE CD,
+       CENTROS_DE_TRABAJO_DETALLE CT,
+       COMBINACIONES_CENTROS_E CC,
+       PERSONAL_E              PE
+ WHERE CD.NO_CENTRO   = $P{NOCENTRO}
+   AND CD.ESTADO      = 1
+   AND CT.CLAVE_AREA  = DECODE(CD.CCT_ZONA,NULL,CD.CLAVE_AREA,CD.CCT_ZONA)
+   AND CT.ESTADO      = 1
+   AND CC.NO_CENTRO   = CT.NO_CENTRO
+   AND CC.ESTADO      = 1
+   AND CC.NO_PERSONAL = PE.NO_PERSONAL
+   AND CC.CICLO_ESCOLAR_INI = (SELECT CICLOESCOLARINI FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.CICLO_ESCOLAR_FIN = (SELECT CICLOESCOLARFIN FROM KCICLOESCOLAR WHERE CVESITUACION = 11)
+   AND CC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)
+
+   AND EXISTS(SELECT NULL
+                FROM HORARIOS_CENTRO_TRABAJO_E HC,
+                     KCICLOESCOLAR       KC
+               WHERE HC.NO_COMBINACION    = CC.NO_COMBINACION
+                 AND HC.ESTADO_HORARIO    = 'A'
+                 AND HC.NO_FUNCION        = 1
+                 AND HC.NO_SUBFUNCION     = 4
+                 AND HC.NO_SUBSUBFUNCION  = 1
+                 AND HC.EJERCICIO         = TO_CHAR(SYSDATE,'YYYY')
+                 AND HC.CICLO_ESCOLAR_INI = KC.CICLOESCOLARINI
+                 AND HC.CICLO_ESCOLAR_FIN = KC.CICLOESCOLARFIN
+                 AND KC.CVESITUACION      = 11
+                 AND HC.ESTADO_HORARIO='A'
+                 AND HC.tipo_plantilla  = (SELECT DECODE( (SELECT 1 FROM dual WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/08/'||TO_CHAR(SYSDATE,'YY'))  AND to_date('30/10/'||TO_CHAR(SYSDATE,'YY'))  UNION  SELECT 2  FROM dual  WHERE TO_CHAR(sysdate,'DD/MM/YY') BETWEEN to_date('01/04/'||TO_CHAR(sysdate,'YY'))  AND TO_DATE('30/07/'||TO_CHAR(sysdate,'YY'))  ),1,'I',2,'F','M')FROM dual)))
+ WHERE ROWNUM = 1) SUPERVISOR
+   FROM DUAL]]>
+	</queryString>
+	<field name="DIRECTOR" class="java.lang.String"/>
+	<field name="SUPERVISOR" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="251" splitType="Stretch">
+			<textField>
+				<reportElement x="484" y="224" width="202" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SUPERVISOR}.equals(null)?'':$F{SUPERVISOR}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="42" y="159" width="202" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DIRECTOR]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="42" y="224" width="202" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DIRECTOR}.equals(null)?'':$F{DIRECTOR}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="42" y="224" width="202" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="484" y="159" width="202" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[SUPERVISOR]]></text>
+			</staticText>
+			<line>
+				<reportElement x="484" y="223" width="202" height="1"/>
+			</line>
+		</band>
+	</detail>
+</jasperReport>

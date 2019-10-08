@@ -1,0 +1,415 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+
+<ui:composition template="menu.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:define name="contenido">
+        <h:head>
+            <title>EVENTOS</title>
+             <script type="text/javascript">    
+    PrimeFaces.locales['ed'] = {
+        closeText: 'CERRAR',
+        prevText: 'ANTES',
+        nextText: 'DESPUES',
+        monthNames: ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'],
+        monthNamesShort: ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'],
+        dayNames: ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'],
+        dayNamesShort: ['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'],
+        dayNamesMin: ['D', 'L', 'M', 'MI', 'J', 'V ', 'S']
+    };
+</script>
+        </h:head>
+        <f:metadata>
+            <f:viewAction action="#{eventoControl.init(eventoControl.ur)}" />   
+        </f:metadata>       
+        <h:body>
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+        <f:event type="preRenderView" rendered="#{facesContext.postBack}" listener="#{accesoC.validaSesion('eventos.xhtml')}"/>   
+            <center>
+                <h:outputText value="EVENTOS DE VEHICULOS POR UNIDAD RESPONSABLE" style="text-align: center; font-size: 1.7vw; font-weight: bolder" />
+                
+                <h:form id="formMostrar">
+                    <br/>
+                    <h:outputText value="UNIDAD RESPONSABLE: " style="text-align: center; font-size: 1vw; font-weight: bolder" />
+                    <p:selectOneMenu id="ur" filter="true" filterMatchMode="contains" rendered="#{eventoControl.nomUr==null}" value="#{eventoControl.ur}" style="width: 55%;" valueChangeListener="#{eventoControl.valueChange}" >
+                        <f:selectItems var="ur" value="#{eventoControl.urs}" itemLabel="#{ur.claveUr} #{ur.ur}" itemValue="#{ur.noUr}" />
+                        <p:ajax update="tablave" oncomplete="PF('veTabla').filter()"/>
+                         </p:selectOneMenu>
+                    <p:inputText value="#{eventoControl.nomUr}" readonly="true" rendered="#{eventoControl.nomUr!=null}" style="width: 55%;" />
+                    
+                    <br/><br/>
+                    <p:dataTable id="tablave" var="ve" value="#{eventoControl.vehiculos}"
+                                 style="width:100%;" rows="10" rowsPerPageTemplate="5,8,10" 
+                                 emptyMessage ="No hay Vehiculos disponibles para esta unidad responsable" 
+                                 paginator="true" paginatorPosition="bottom"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 filteredValue="#{eventoControl.filteredVehiculo}" widgetVar="veTabla">
+                   
+                        <f:facet name="header">
+                            <p:commandLink id="repev" title="" ajax="false" actionListener="#{eventoControl.generaExcel(1)}" style="float: left;">
+                               <h:graphicImage value="resources/img/generales/021 reporte.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="repev" value="Reporte Excel" showEffect="clip" hideEffect="clip" position="top"/>
+                                <p:outputPanel>
+                                    
+                                    <h:outputText value="Buscar: " />
+                                    <p:inputText id="globalFilter" onkeyup="PF('veTabla').filter()" style="width:150px" placeholder="Escribe para buscar"/>
+                                </p:outputPanel>
+                            </f:facet>
+         
+                        <p:column headerText="#" width="6%" filterBy="#{ve.noVehiculo}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ve.noVehiculo}" />
+                        </p:column>
+
+                        <p:column headerText="SERIE" width="20%" filterBy="#{ve.serie}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ve.serie}" />
+                        </p:column>
+                       
+                        <p:column headerText="PLACAS" width="15%" filterBy="#{ve.placas}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ve.placas}" />
+                        </p:column>
+                        
+                        <p:column headerText="MARCA" width="15%" filterBy="#{ve.marca}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ve.marca}" />
+                        </p:column>
+                        
+                        <p:column headerText="MODELO" width="10%" filterBy="#{ve.modelo}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ve.modelo}" />
+                        </p:column>
+                        
+                        <p:column headerText="TIPO" width="18%" filterBy="#{ve.tipo}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ve.tipo}" />
+                        </p:column>
+                        
+                        <p:column headerText="ESTATUS" width="8%" filterBy="#{ve.estatus}" filterMatchMode="contains">
+                            
+                            <center>
+                                <h:outputLabel value="INACTIVO" title="Inactivo" rendered="#{ve.estatus eq 'I'}" />
+                               <h:outputLabel value="ACTIVO" title="Activo" rendered="#{ve.estatus eq 'A'}" />
+                                </center>
+                        </p:column>
+                        <p:column headerText="EVENTOS" width="8%">
+                            
+                            <center>
+                                <p:commandLink id="evento" title="" actionListener="#{eventoControl.CargaVentanaEvento(ve.noVehiculo)}" disabled="#{ve.estatus eq 'I'}" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" oncomplete="PF('dlgevento').show()" update=":formEvento">
+                                    <f:setPropertyActionListener target="#{vehiculoControl.vehiculo}" value="#{ve}" />
+                               <h:graphicImage value="resources/img/especificos/eventos.png" style="width: 35%; height: 35%;" />
+                           </p:commandLink>
+                                <p:tooltip for="evento" value="Generar eventos sobre este vehiculo" showEffect="clip" hideEffect="clip" position="top"/>
+                                </center>
+                        </p:column>
+                    </p:dataTable>
+
+
+                </h:form>
+
+            </center>
+        <p:dialog id="dlg" header="Evento" showEffect="explode" hideEffect="explode" widgetVar="dlgevento" appendTo="@(body)" modal="true"
+                      resizable="false" closeOnEscape="true" minWidth="200" width="95%" height="600" position="center">
+                <center>
+              <h:form id="formEvento" class="dialogC">
+              
+   <p:panel id="basic" style="margin-bottom:20px">
+       <h:outputText value="EVENTOS PARA EL VEHICULO:" style="text-align: center; font-size: 25px; font-weight: bolder" /><br/>
+        <h:panelGrid columns="12" cellpadding="10">
+        
+            <h:outputText styleClass="tituloEvento" value="No Vehiculo: " /><h:outputText value="#{vehiculoControl.vehiculo.noVehiculo}" />
+                    <h:outputText styleClass="tituloEvento" value=" Serie: "  /><h:outputText value="#{vehiculoControl.vehiculo.serie}" />
+                    <h:outputText styleClass="tituloEvento" value=" Placa: " /><h:outputText value="#{vehiculoControl.vehiculo.placas}" />
+                    <h:outputText styleClass="tituloEvento" value=" Marca: " /><h:outputText value="#{vehiculoControl.vehiculo.marca}" />
+                    <h:outputText styleClass="tituloEvento" value=" Tipo: " /><h:outputText value="#{vehiculoControl.vehiculo.tipo}" />
+                    <h:outputText styleClass="tituloEvento" value=" UR: " />        <h:outputText value="#{vehiculoControl.vehiculo.ur}" />                  
+                        
+        </h:panelGrid>
+    </p:panel>
+                    <p:dataTable id="tablaev" var="ev" value="#{eventoControl.eventos}"
+                                 style="width:100%;" rows="10" rowsPerPageTemplate="5,8,10" 
+                                 emptyMessage ="No hay Eventos disponibles" 
+                                 paginator="true" paginatorPosition="bottom"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 filteredValue="#{eventoControl.filteredEvento}" widgetVar="evTabla">
+                   
+                        <f:facet name="header">
+                            <p:commandLink id="insev" title="" update=":formInsertar" actionListener="#{eventoControl.CargaVentanaInserta(vehiculoControl.vehiculo.noUr)}" style="float: left;" type="button" rendered="#{accesoC.rolbotones.insertar eq 'S'}" >
+                            <h:graphicImage value="resources/img/generales/018 agregar.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="insev" value="Insertar Evento" showEffect="clip" hideEffect="clip" position="top"/>
+                            <p:commandLink id="repev2" title="" update=":formParametros" actionListener="#{eventoControl.CargaVentanaParametros(vehiculoControl.vehiculo.noVehiculo)}" type="button" style="float: left;">
+                                <h:graphicImage value="resources/img/generales/021 reporte.png" width="30" height="30" />
+                            </p:commandLink>
+                            <p:tooltip for="repev2" value="Reporte Excel" showEffect="clip" hideEffect="clip" position="top"/>
+                                 <p:outputPanel>
+                                     
+                                    <h:outputText value=" Buscar: " />
+                                    <p:inputText id="globalFilter" onkeyup="PF('evTabla').filter()" style="width:150px" placeholder="Escribe para buscar"/>
+                                   
+                                </p:outputPanel>
+                            </f:facet>
+         
+                        <p:column headerText="#" width="4%" filterBy="#{ev.noEvento}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ev.noEvento}" />
+                        </p:column>
+                        <p:column headerText="TIPO DE EVENTO" width="11%" filterBy="#{ev.tipoEvento}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ev.tipoEvento}" />
+                        </p:column>
+                        <p:column headerText="DESCRIPCION" width="11%" filterBy="#{ev.descripcion}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ev.descripcion}" />
+                        </p:column>
+                        
+                        <p:column headerText="PROVEEDOR" width="11%" filterBy="#{ev.proveedor}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ev.proveedor}" />
+                        </p:column>
+                        
+                        <p:column headerText="NUMERO FACTURA" width="11%" filterBy="#{ev.numFactura}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ev.numFactura}" />
+                        </p:column>
+                        
+                        <p:column headerText="FECHA" width="6%" filterBy="#{ev.fecha}" filterStyle="width:90%;" filterMatchMode="contains">
+                            <h:outputText value="#{ev.fecha}" />
+                        </p:column>
+                        <p:column headerText="ESTATUS" width="6%" filterBy="#{ev.estatus}" filterMatchMode="contains">
+                            
+                            <center>
+                               <h:outputLabel value="INACTIVO" title="Inactivo" rendered="#{ev.estatus eq 'I'}" />
+                               <h:outputLabel value="ACTIVO" title="Activo" rendered="#{ev.estatus eq 'A'}" />
+                               
+                            </center>
+                        </p:column>
+                        <p:column headerText="DOCUMENTO" width="6%">
+                            
+                            <center>
+                           <p:commandLink id="doc" title=""  disabled="#{ev.estatus eq 'I'}" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" actionListener="#{eventoControl.CargaVentanaImagenes(ev.noEvento)}" update=":formSubir" >
+                                 <f:setPropertyActionListener target="#{eventoControl.evento}" value="#{ev}" />
+                                <h:graphicImage value="resources/img/generales/pdf.png" width="20" height="20" />
+                           </p:commandLink>
+                                <p:tooltip for="doc" value="PDF de Evento" showEffect="clip" hideEffect="clip" position="top"/>
+                                </center>
+                        </p:column>
+                        <p:column headerText="ACTUALIZAR" width="6%">
+                            
+                            <center>
+                                <p:commandLink id="actev" title="" disabled="#{ev.estatus eq 'I'}" rendered="#{accesoC.rolbotones.actualizar eq 'S'}" oncomplete="PF('dlgmodificar').show()" update=":formModificar">
+                                    <f:setPropertyActionListener target="#{eventoControl.evento}" value="#{ev}" />
+                               <h:graphicImage value="resources/img/generales/020 actualizar.png" width="20" height="20" />
+                           </p:commandLink>
+                                <p:tooltip for="actev" value="Actualizar Evento" showEffect="clip" hideEffect="clip" position="top"/>
+                                </center>
+                        </p:column>
+                        
+                        <p:column headerText="DESACTIVAR" width="6%">
+                            
+                            <center>
+                                <p:commandLink id="desev" title="" disabled="#{ev.estatus eq 'I'}" rendered="#{accesoC.rolbotones.eliminar eq 'S'}" oncomplete="PF('dlgactivardesactivar').show()" update=":formActivarDesactivar">
+                                    <f:setPropertyActionListener target="#{eventoControl.evento}" value="#{ev}" />
+                               <h:graphicImage value="resources/img/generales/019 quitar.png" width="20" height="20" />
+                           </p:commandLink>
+                                <p:tooltip for="desev" value="Desactivar Evento" showEffect="clip" hideEffect="clip" position="top"/>
+                                </center>
+                        </p:column>
+                        
+                    </p:dataTable>
+                </h:form>            
+                </center>
+            </p:dialog>
+           <p:dialog id="dlg1" header="Insertar Evento" showEffect="explode" hideEffect="explode" widgetVar="dlginsertar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+                <h:form id="formInsertar" class="dialogC">
+                    <p:growl id="mg" showSummary="true" showDetail="true"/>
+                    <p:panelGrid columns="6">
+                            <p:outputLabel value="TIPO EVENTO" for="tipoevento" />
+                            <p:selectOneMenu id="tipoevento" value="#{eventoControl.evento.noTipoEvento}" valueChangeListener="#{eventoControl.valueChangeTipoEvento}" style="width: 90%;" required="true" requiredMessage="Se requiere Tipo de evento" >
+                            <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                            <f:selectItems var="te" value="#{eventoControl.tiposevento}" itemLabel="#{te.tipoEvento}" itemValue="#{te.noTipoEvento}" />
+                            <p:ajax update="formInsertar" />
+                            </p:selectOneMenu>
+                            <p:message for="tipoevento" display="icon" />
+                            <p:outputLabel value="DESCRIPCION" for="descripcion" />
+                            <p:inputTextarea id="descripcion" maxlength="250" autoResize="false" cols="30" value="#{eventoControl.evento.descripcion}" requiredMessage="Se requiere Descripcion" required="true" style="text-transform: uppercase;" />
+                            <p:message for="descripcion" display="icon" />
+                            <p:outputLabel value="FECHA" for="fecha" />
+                            <p:calendar id="fecha" readonlyInput="true" maxdate="#{eventoControl.evento.fecha}" showOn="button" locale="ed" pattern="dd/MM/yyyy" value="#{eventoControl.evento.fecha}" requiredMessage="Se requiere Fecha" required="true" />
+                            <p:message for="fecha" display="icon" />
+                            <p:outputLabel value="FECHA VENCIMIENTO" for="fechav" />
+                            <p:calendar id="fechav" readonlyInput="true" showOn="button" locale="ed" pattern="dd/MM/yyyy" value="#{eventoControl.evento.fechaVencimiento}" requiredMessage="Se requiere Fecha" required="false" />
+                            <p:message for="fechav" display="icon" />
+                            <p:outputLabel value="PROVEEDOR" for="proveedor" />
+                            <p:inputText id="proveedor" value="#{eventoControl.evento.proveedor}" size="28" requiredMessage="Se requiere Proveedor" required="false" style="text-transform: uppercase;" />
+                            <p:message for="proveedor" display="icon" />
+                            <p:outputLabel value="IMPORTE" for="importe" />
+                            <p:inputText id="importe" value="#{eventoControl.evento.importe}" requiredMessage="Se requiere Importe" required="false" />
+                            <p:message for="importe" display="icon" />
+                            <p:outputLabel value="NUMERO DE FACTURA" for="numfactura" />
+                            <p:inputText id="numfactura" value="#{eventoControl.evento.numFactura}" size="28" requiredMessage="Se requiere Numero de factura" required="false" />
+                            <p:message for="numfactura" display="icon" />
+                            <p:outputLabel value="KILOMETRAJE" for="km" />
+                            <p:inputText id="km" value="#{eventoControl.evento.km}" size="6" requiredMessage="Se requiere kilometraje" required="true" />
+                            <p:message for="km" display="icon" />
+                            <p:outputLabel rendered="#{eventoControl.mostrar eq 'RV'}" value="RESGUARDANTE" for="resguardante" />
+                            <p:inputText id="resguardante" rendered="#{eventoControl.mostrar eq 'RV'}" value="#{eventoControl.evento.resguardante}" size="40" style="text-transform: uppercase;" requiredMessage="Se requiere Resguardante" required="false" />
+                            <p:message rendered="#{eventoControl.mostrar eq 'RV'}" for="resguardante" display="icon" />
+                            <p:outputLabel rendered="#{eventoControl.mostrar eq 'RV'}" value="PUESTO" for="puesto" />
+                            <p:inputText id="puesto" rendered="#{eventoControl.mostrar eq 'RV'}" value="#{eventoControl.evento.puesto}" style="text-transform: uppercase;" requiredMessage="Se requiere Puesto" required="false" />
+                            <p:message rendered="#{eventoControl.mostrar eq 'RV'}" for="puesto" display="icon" />
+                            <p:outputLabel rendered="#{eventoControl.mostrar eq 'VV'}" value="HOLOGRAMA" for="holograma" />
+                            <p:inputText id="holograma" rendered="#{eventoControl.mostrar eq 'VV'}" value="#{eventoControl.evento.holograma}" style="text-transform: uppercase;" requiredMessage="Se requiere Holograma" required="true" />
+                            <p:message rendered="#{eventoControl.mostrar eq 'VV'}" for="holograma" display="icon" />
+                            <p:outputLabel rendered="#{eventoControl.mostrar eq 'RV'}" value="ORIGEN ADQUISICION" for="origena" />
+                            <p:selectOneMenu id="origena" rendered="#{eventoControl.mostrar eq 'RV'}" value="#{eventoControl.evento.noOrigen}" style="width: 90%;" required="false" requiredMessage="Se requiere origen de adquisicion" >
+                            <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                            </p:selectOneMenu>
+                            <p:message rendered="#{eventoControl.mostrar eq 'RV'}" for="origena" display="icon" />
+                            <p:outputLabel rendered="#{eventoControl.mostrar eq 'RV'}" value="FORMA ADQUISICION" for="formaa" />
+                            <p:selectOneMenu id="formaa" rendered="#{eventoControl.mostrar eq 'RV'}" value="#{eventoControl.evento.noFormaAdquisicion}" style="width: 90%;" required="false" requiredMessage="Se requiere forma de adquisicion" >
+                            <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                            </p:selectOneMenu>
+                            <p:message rendered="#{eventoControl.mostrar eq 'RV'}" for="formaa" display="icon" />
+                            
+                    </p:panelGrid>
+                    <br/>
+                    <center>
+                    <p:commandButton value="Guardar" update="mg , formEvento"
+                                     actionListener="#{eventoControl.insertar()}" oncomplete="actualizaListEventos();"/>
+                </center>
+                </h:form>
+            </p:dialog>
+            
+            <p:dialog id="dlg2" header="Modificar Evento" showEffect="explode" hideEffect="explode" widgetVar="dlgmodificar" 
+                      resizable="false" minWidth="200" closeOnEscape="true" appendTo="@(body)" modal="true">
+
+
+                <h:form id="formModificar" class="dialogC">
+
+                         <p:growl id="mg" showSummary="true" showDetail="true"/>  
+                             <p:panelGrid columns="6">
+                             <p:outputLabel value="NO TIPO EVENTO" for="tipoevento" />
+                            <p:selectOneMenu id="tipoevento" value="#{eventoControl.evento.noTipoEvento}" style="width: 90%;" required="true" requiredMessage="Se requiere Tipo de evento" >
+                            <f:selectItem itemLabel="Seleccione...." itemValue="" />
+                            <f:selectItems var="te" value="#{eventoControl.tiposevento}" itemLabel="#{te.tipoEvento}" itemValue="#{te.noTipoEvento}" />
+                             </p:selectOneMenu>
+                            <p:message for="tipoevento" display="icon" />
+                            <p:outputLabel value="DESCRIPCION" for="descripcion" />
+                            <p:inputTextarea id="descripcion" maxlength="250" autoResize="false" cols="30" value="#{eventoControl.evento.descripcion}" requiredMessage="Se requiere Descripcion" required="true" style="text-transform: uppercase;" />
+                            <p:message for="descripcion" display="icon" />
+                            <p:outputLabel value="FECHA" for="fecha" />
+                            <p:calendar id="fecha" readonlyInput="true" maxdate="#{eventoControl.evento.fecha}" showOn="button" locale="ed" pattern="dd/MM/yyyy" value="#{eventoControl.evento.fecha}" requiredMessage="Se requiere Fecha" required="true" />
+                            <p:message for="fecha" display="icon" />
+                            <p:outputLabel value="PROVEEDOR" for="proveedor" />
+                            <p:inputText id="proveedor" value="#{eventoControl.evento.proveedor}" size="28" requiredMessage="Se requiere Proveedor" required="false" style="text-transform: uppercase;" />
+                            <p:message for="proveedor" display="icon" />
+                            <p:outputLabel value="IMPORTE" for="importe" />
+                            <p:inputText id="importe" value="#{eventoControl.evento.importe}" requiredMessage="Se requiere Importe" required="false" />
+                            <p:message for="importe" display="icon" />
+                            <p:outputLabel value="NUMERO DE FACTURA" for="numfactura" />
+                            <p:inputText id="numfactura" value="#{eventoControl.evento.numFactura}" size="28" requiredMessage="Se requiere Numero de factura" required="false" />
+                            <p:message for="numfactura" display="icon" />
+                            <p:outputLabel value="KILOMETRAJE" for="km" />
+                            <p:inputText id="km" value="#{eventoControl.evento.km}" size="6" requiredMessage="Se requiere kilometraje" required="true" />
+                            <p:message for="km" display="icon" />
+                    </p:panelGrid>
+                         <br/>
+                         <center>
+                        <p:commandButton value="Modificar" update="mg , formEvento"
+                                         actionListener="#{eventoControl.modificar()}"
+                                         oncomplete="actualizaListEventos();"
+                                         />
+
+                        <p:commandButton value="Cancelar" actionListener="#{eventoControl.cancelarActualizar()}"/>
+                        </center>
+
+                </h:form>
+
+
+            </p:dialog>
+
+            
+            <p:dialog id="dlg3" header="Estatus del Evento" showEffect="explode" hideEffect="explode" appendTo="@(body)" modal="true"
+                      widgetVar="dlgactivardesactivar" resizable="false" minWidth="200" closeOnEscape="true">
+
+                <h:form id="formActivarDesactivar" class="dialogC">
+
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+
+
+                        <h:outputText rendered="#{eventoControl.evento.estatus eq 'A'}" value="¿Desea inactivar el evento?" />    
+                        <p:commandButton rendered="#{eventoControl.evento.estatus eq 'A'}" value="Si" 
+                                         update="mg , :formEvento" actionListener="#{eventoControl.activardesactivar(3)}" 
+                                         oncomplete="actualizaListEventos();" > </p:commandButton>
+                  
+                   <p:commandButton value="No" actionListener="#{eventoControl.cancelarActivarDesactivar()}" />
+                
+                </h:form>
+            </p:dialog>
+
+            
+              <p:dialog id="dlg4" header="Subir PDF de evento" showEffect="explode" hideEffect="explode" appendTo="@(body)" modal="true"
+                        resizable="false" closeOnEscape="true" widgetVar="dlgsubir" width="90%" height="500" position="center">
+                  
+                    <h:form id="formSubir" class="dialogC">
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+                        
+                            <center>
+                                <p:fileUpload fileUploadListener="#{eventoControl.subirImagen}" label="Elegir" uploadLabel="Subir" 
+                                              cancelLabel="Cancelar" mode="advanced" dragDropSupport="false" style="width: 100%; height: 100%;" 
+                                      update="mg" sizeLimit="15000000" invalidFileMessage="Solo se permite archivos PDF" 
+                                      invalidSizeMessage="El tamaño maximo de archivo es 15 MB." allowTypes="/(\.|\/)(pdf)$/" oncomplete="actualizaPDF();" ></p:fileUpload>
+                                
+                                <p:media player="pdf" value="#{eventoControl.pdf}" style="width: 100%; height: 420px;">
+                                    <f:param name="idpdf" value="#{eventoControl.evento.noEvento}" />
+                                    Tu explorador no puede vizualizar pdf, <h:outputLink value="#{eventoControl.pdf}">click</h:outputLink> Para descargar.
+                                 </p:media>
+
+                         <p:commandLink value="Eliminar" actionListener="#{eventoControl.eliminarImagen()}" update="mg" oncomplete="actualizaPDF();">
+                         <f:param name="noEvento" value="#{eventoControl.evento.noEvento}"/>
+                         </p:commandLink>
+                                </center>
+                        <br/>
+                        
+                    </h:form>
+                </p:dialog>
+        
+        <p:dialog id="dlg5" header="Parametros de Reporte" showEffect="explode" hideEffect="explode" closeOnEscape="true"
+                        widgetVar="dlgparametros" resizable="false" width="400" height="180" position="center" appendTo="@(body)" modal="true">
+                  
+                    <h:form id="formParametros" class="dialogC">
+                        <p:growl id="mg" showSummary="true" showDetail="true"/>
+                        
+                            <center>
+                                <p:panelGrid columns="3">
+                                    <p:outputLabel value="FECHA INICIO: " for="fecha" />
+                         <p:calendar id="fecha" showOn="button" locale="ed" pattern="dd/MM/yyyy" value="#{eventoControl.fechaP1}"  />
+                            <p:message for="fecha" display="icon" />
+                            <p:outputLabel value="FECHA FIN: " for="fecha2" />
+                            <p:calendar id="fecha2" showOn="button" locale="ed" pattern="dd/MM/yyyy" value="#{eventoControl.fechaP2}" />
+                            <p:message for="fecha2" display="icon" />
+                                </p:panelGrid>
+                         
+                            <p:commandButton value="Generar" update="mg" ajax="false" oncomplete="PF('dlgparametros').hide();"
+                                             actionListener="#{eventoControl.cargaReporte()}" 
+                                          > </p:commandButton>
+                            <br/>
+                            <br/>
+                            <p:outputLabel value="* EN CASO DE NO PONER FECHA SE GENERARAN TODOS LOS EVENTOS DEL VEHICULO" />
+                                </center>
+                        <br/>
+                        
+                    </h:form>
+                </p:dialog>
+
+
+
+         <h:form>
+          <p:remoteCommand name="actualizaListEventos" update=":formMostrar" actionListener="#{eventoControl.init(eventoControl.ur)}" />
+          <p:remoteCommand name="actualizaPDF" update="formSubir" actionListener="#{eventoControl.CargaVentanaImagenes(eventoControl.evento.noEvento)}" />
+         </h:form>
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage value="resources/img/imagenes/loading.gif" />
+       </p:dialog>
+        </h:body>
+    </ui:define>
+</ui:composition>
+

@@ -1,0 +1,33 @@
+
+.ui-paginator-top {
+   text-align: left ! important;
+}
+
+.ui-datatable .ui-datatable-header {
+    border-bottom: 0px none;
+}
+
+.ui-widget-header {
+        /*
+    background: rgba(243,226,199,1)!important;
+background: -moz-linear-gradient(left, rgba(243,226,199,1) 0%, rgba(193,158,103,1) 32%, rgba(182,141,76,1) 51%, rgba(233,212,179,1) 100%)!important;
+background: -webkit-gradient(left top, right top, color-stop(0%, rgba(243,226,199,1)), color-stop(32%, rgba(193,158,103,1)), color-stop(51%, rgba(182,141,76,1)), color-stop(100%, rgba(233,212,179,1)))!important;
+background: -webkit-linear-gradient(left, rgba(243,226,199,1) 0%, rgba(193,158,103,1) 32%, rgba(182,141,76,1) 51%, rgba(233,212,179,1) 100%)!important;
+background: -o-linear-gradient(left, rgba(243,226,199,1) 0%, rgba(193,158,103,1) 32%, rgba(182,141,76,1) 51%, rgba(233,212,179,1) 100%)!important;
+background: -ms-linear-gradient(left, rgba(243,226,199,1) 0%, rgba(193,158,103,1) 32%, rgba(182,141,76,1) 51%, rgba(233,212,179,1) 100%)!important;
+background: linear-gradient(to right, rgba(243,226,199,1) 0%, rgba(193,158,103,1) 32%, rgba(182,141,76,1) 51%, rgba(233,212,179,1) 100%)!important;
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3e2c7', endColorstr='#e9d4b3', GradientType=1 )!important;
+*/
+background: #4c4c4c;
+background: -moz-linear-gradient(top, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%);
+background: -webkit-linear-gradient(top, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%);
+background: linear-gradient(to bottom, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4c4c4c', endColorstr='#131313',GradientType=0 );
+
+    font-family: sans-serif;
+    font-size: 0.9em !important;
+    font-weight: bold !important;
+    color: #ffffff !important;
+    text-shadow: #000000  0.1em 0.1em 0.2em !important;  
+}
+
